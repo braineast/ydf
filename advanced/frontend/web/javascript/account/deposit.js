@@ -28,6 +28,7 @@ $(document).ready(
                 {
                     alert('请输入正确的充值金额。');
                 }
+                if ($(this).val() < 0.01) alert("充值金额的数字应该至少不小于0.01元。");
             }
         });
 
@@ -36,6 +37,11 @@ $(document).ready(
                 var isValid = chkFloat($('input.inputMoney').val());
                 if (isValid == true)
                 {
+                    if ($('input.inputMoney').val() < 0.01)
+                    {
+                        alert("充值金额的数字应该至少不小于0.01元。");
+                        return false;
+                    }
                     $.post(
                         '/index.php?r=account/deposit',
                         {ajax:"1", amount:$('input.inputMoney').val()},
