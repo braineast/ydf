@@ -38,10 +38,10 @@ $(document).ready(
                 {
                     $.post(
                         '/index.php?r=account/deposit',
-                        {ajax:'1', amount:'100'},
+                        {ajax:"1", amount:$('input.inputMoney').val()},
                         function(data)
                         {
-                            alert(data);
+                            window.location.href = data;
                         }
                     );
                     event.preventDefault();
