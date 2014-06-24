@@ -24,17 +24,30 @@ class AccountController extends Controller
 
     public function actionDeposit()
     {
-        $order = new Order();
-        $cnpnr = new ChinaPNR();
-        $cnpnr->deposit();
-        $cnpnr->usrCustId = '6000060001868215';
-        $cnpnr->transAmt = '0.01';
-        $cnpnr->returl = 'http://www.yidaifa.com/return.php';
-        $cnpnr->bgreturl = 'http://www.yidaifa.com/return.php';
-        $cnpnr->ordId = $order->serial;
-        $cnpnr->ordDate = substr($cnpnr->ordId, 0, 8);
-        $cnpnr->merPriv = '{name: "李晓", baby: "小虎"}';
-        exit($cnpnr->getLink());
+        if (isset($_POST) && $_POST)
+        {
+            $ajax = isset($_POST['ajax']) && $_POST['ajax'] ? true : false;
+            $amount = isset($_POST['amount']) && $_POST['amount'] > 0 ? $_POST['amount'] : null;
+            if ($amount)
+            {
+                $order = new Order();
+                $order->type = Order::TYPE_ACCOUNT_DEPOSIT;
+                $order->amount = $amount;
+                $cnpnr = new ChinaPNR();
+                $cnpnr->deposit();
+                $cnpnr->usrCustId = '6000060001868215';
+                $cnpnr->transAmt = number_format($amount, 2, '.', '');
+                $cnpnr->returl = 'http://www.yidaifa.com/return.php';
+                $cnpnr->bgreturl = 'http://www.yidaifa.com/return.php';
+                $cnpnr->ordId = $order->serial;
+                $cnpnr->ordDate = substr($cnpnr->ordId, 0, 8);
+                $cnpnr->merPriv = '{name: "李晓", baby: "小虎"}';
+                $redirectUrl = $cnpnr->getLink();
+                if ($ajax) exit($redirectUrl);
+                exit("<a href=\"".$redirectUrl."\">现在支付</a>");
+            }
+        }
+        return $this->render('deposit');
     }
 
     public function actionVsign()
