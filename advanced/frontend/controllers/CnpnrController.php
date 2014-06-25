@@ -16,11 +16,7 @@ class CnpnrController extends Controller {
 
     public $enableCsrfValidation = false;
 
-    public function actionIndex()
-    {
-        die("Hello");
-    }
-    public function actionReturn($backend = false)
+    public function actionIndex($backend = false)
     {
         $backend = $backend ? true : $backend;
         if (isset($_POST) && $_POST)
@@ -33,10 +29,9 @@ class CnpnrController extends Controller {
                 {
                     case ChinaPNR::CMD_DEPOSIT:
                         //处理充值订单
-                        file_put_contents('/tmp/deposit_log', json_encode($response), FILE_APPEND);
                         break;
                 }
-                if ($backend) exit('Hello Kitty!');
+                if ($backend) exit('RECV_ORD_ID_'.$response[$response[ChinaPNR::PARAM_MERPRIV]['showId']]);
             }
         }
     }
