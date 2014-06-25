@@ -72,6 +72,28 @@ class OrderPayment extends Model{
         return $this;
     }
 
+    public function load()
+    {
+        $ydfPaymentNotice = PaymentNotice::find()->where('user_id=:userId and notice_sn=:id', [':userId'=>$this->userId,':id'=>$this->serial])->one();
+        if ($ydfPaymentNotice)
+            return $this->_convert($ydfPaymentNotice);
+        return false;
+    }
+
+    public function paid()
+    {
+        $ydfPaymentNotice = PaymentNotice::find()->where('id=:id', [':id'=>$this->id])->one();
+        if ($ydfPaymentNotice)
+        {
+            $ydfPaymentNotice->setAttribute('is_paid', PaymentNotice::STATUS_PAID);
+            $ydfPaymentNotice->setAttributes('pay_time', time());
+            $ydfPaymentNotice->save();
+            $this->_convert($ydfPaymentNotice);
+        }
+
+        return $this;
+    }
+
     private function _createSerial()
     {
         $orderNumber = false;
