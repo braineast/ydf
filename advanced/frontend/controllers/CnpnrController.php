@@ -36,6 +36,11 @@ class CnpnrController extends Controller
         }
     }
 
+    public function actionBackend()
+    {
+        return $this->actionIndex(true);
+    }
+
     protected function NetSave()
     {
         if ($this->response[ChinaPNR::RESP_CODE] == '0000')
