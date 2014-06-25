@@ -48,7 +48,7 @@ class ChinaPNR {
 
     public function __construct($hostInfo)
     {
-        $this->retUrl = $hostInfo . '/cnpnr';
+        $this->retUrl = $hostInfo . '/cnpnr2014';
         $this->bgRetUrl = $hostInfo . '/cnpnr?backend=1';
         $this->host = 'https://lab.chinapnr.com/muser/publicRequests';
         $this->merId = '830068';
