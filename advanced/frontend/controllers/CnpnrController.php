@@ -16,6 +16,7 @@ use yii\web\Controller;
 
 class CnpnrController extends Controller
 {
+    public $enableCsrfValidation = false;
     private $response;
 
     public function actionIndex($backend = false)
