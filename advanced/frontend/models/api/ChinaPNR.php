@@ -42,9 +42,13 @@ class ChinaPNR {
     private $queryString;
     private $maps;
     private $vSignOrder;
+    private $retUrl;
+    private $bgRetUrl;
 
-    public function __construct()
+    public function __construct($hostInfo)
     {
+        $this->retUrl = $hostInfo . '/index.php?r=cnpnr/return';
+        $this->bgRetUrl = $hostInfo . '/index.php?r=cnpnr/return&backend=1';
         $this->host = 'https://lab.chinapnr.com/muser/publicRequests';
         $this->merId = '830068';
         $this->params = [
@@ -68,11 +72,17 @@ class ChinaPNR {
                 9=>self::PARAM_BGRETURL,10=>self::PARAM_MERPRIV
             ],
         ];
+        $this->response = null;
     }
 
-    public function deposit()
+    public function deposit($who, $amount)
     {
         $this->params[self::PARAM_CMDID] = self::CMD_DEPOSIT;
+        $this->params[self::PARAM_DCFLAG] = 'D';
+        $this->params[self::PARAM_USRCUSTID] = $who;
+        $this->params[self::PARAM_TRANSAMT] = number_format($amount, 2, '.', '');
+        $this->params[self::PARAM_RETURL] = $this->retUrl;
+        $this->params[self::PARAM_BGRETURL] = $this->bgRetUrl;
         return $this;
     }
 
@@ -224,7 +234,6 @@ class ChinaPNR {
                 $this->queryString .= $this->queryString ? '&'.$name.'='.$val : '?'.$name.'='.$val;
             }
         }
-
         return $message;
     }
 }
