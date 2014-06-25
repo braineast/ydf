@@ -17,6 +17,7 @@ class PaymentNotice extends ActiveRecord
     const PAYMENT_CNPNR = 4;
 
     const STATUS_UNPAID = 0;
+    const STATUS_PAID = 1;
 
     public function init()
     {
