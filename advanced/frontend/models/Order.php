@@ -88,15 +88,13 @@ class Order extends Model {
         $ydfOrder = $this->loadYdfOrder();
         if ($this->status != self::STATUS_PAID)
         {
-            $ydfOrder->setAttributes('pay_amount', number_format($this->paid_amount, 4, '.',''));
-            $ydfOrder->setAttributes('update_time', time());
-            print_r($ydfOrder->attributes);
+            $ydfOrder->setAttribute('pay_amount', $this->paid_amount);
+            $ydfOrder->setAttribute('update_time', time());
             if ($this->paid_amount == $this->amount)
             {
                 $this->status = self::STATUS_PAID;
-                $ydfOrder->setAttributes('pay_status', YdfOrder::STATUS_PAYMENT_PAID);
-                $ydfOrder->setAttributes('order_status', YdfOrder::STATUS_ORDER_COMPLETED);
-                print_r($ydfOrder->attributes);
+                $ydfOrder->setAttribute('pay_status', YdfOrder::STATUS_PAYMENT_PAID);
+                $ydfOrder->setAttribute('order_status', YdfOrder::STATUS_ORDER_COMPLETED);
             }
             if ($ydfOrder->save()) $this->_convert($ydfOrder);
         }
