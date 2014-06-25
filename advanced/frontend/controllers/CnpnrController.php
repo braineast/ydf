@@ -21,6 +21,7 @@ class CnpnrController extends Controller
 
     public function actionIndex($backend = false)
     {
+        header('Content-Type: text/html; charset=UTF-8');
         $backend = $backend ? true : $backend;
         if (isset($_POST) && $_POST)
         {
