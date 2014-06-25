@@ -29,9 +29,8 @@ return [
             'errorAction' => 'site/error',
         ],
         'urlManager' => [
-            'rules' => [
-                '' => 'product/list',
-            ],
+            'enablePrettyUrl'=>true,
+            'showScriptName'=>false,
         ],
         'ydf_db' => [
             'class' => 'yii\db\Connection',
