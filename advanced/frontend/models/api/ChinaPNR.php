@@ -44,11 +44,12 @@ class ChinaPNR {
     private $vSignOrder;
     private $retUrl;
     private $bgRetUrl;
+    private $showId;
 
     public function __construct($hostInfo)
     {
-        $this->retUrl = $hostInfo . '/index.php?r=cnpnr/return';
-        $this->bgRetUrl = $hostInfo . '/index.php?r=cnpnr/return&backend=1';
+        $this->retUrl = $hostInfo . '/cnpnr';
+        $this->bgRetUrl = $hostInfo . '/cnpnr?backend=1';
         $this->host = 'https://lab.chinapnr.com/muser/publicRequests';
         $this->merId = '830068';
         $this->params = [
@@ -73,6 +74,7 @@ class ChinaPNR {
             ],
         ];
         $this->response = null;
+        $this->showId = self::PARAM_ORDID;
     }
 
     public function deposit($who, $amount)
@@ -83,8 +85,10 @@ class ChinaPNR {
         $this->params[self::PARAM_TRANSAMT] = number_format($amount, 2, '.', '');
         $this->params[self::PARAM_RETURL] = $this->retUrl;
         $this->params[self::PARAM_BGRETURL] = $this->bgRetUrl;
+        $this->showId = self::RESP_TRXID;
         return $this;
     }
+
 
     public function setResponse(array $responseArr)
     {
@@ -108,7 +112,7 @@ class ChinaPNR {
                     foreach($responseArr as $k => $v)
                     {
                         if ($k == self::RESP_DESC) $v = urldecode($v);
-                        if ($k == self::PARAM_MERPRIV) $v = base64_decode($v);
+                        if ($k == self::PARAM_MERPRIV) $v = json_decode(base64_decode($v), true);
                         $this->response[$k] = $v;
                     }
                 }
@@ -228,7 +232,12 @@ class ChinaPNR {
             $val = isset($this->params[$name]) ? trim($this->params[$name]) : null;
             if ($val)
             {
-                if ($name == self::PARAM_MERPRIV) $val = base64_encode($val);
+                if ($name == self::PARAM_MERPRIV)
+                {
+                    $val = json_decode($val, true);
+                    $val['showId'] = $this->showId;
+                    $val = base64_encode(json_encode($val));
+                }
                 $message .= $val;
                 if ($name == self::PARAM_RETURL || $name == self::PARAM_BGRETURL) $val = urlencode($val);
                 $this->queryString .= $this->queryString ? '&'.$name.'='.$val : '?'.$name.'='.$val;
