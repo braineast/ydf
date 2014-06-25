@@ -8,6 +8,7 @@
 
 namespace frontend\models;
 
+use frontend\models\ydf\User;
 use yii;
 use yii\base\Model;
 use frontend\models\ydf\Order as YdfOrder;
@@ -96,7 +97,23 @@ class Order extends Model {
                 $ydfOrder->setAttribute('pay_status', YdfOrder::STATUS_PAYMENT_PAID);
                 $ydfOrder->setAttribute('order_status', YdfOrder::STATUS_ORDER_COMPLETED);
             }
-            if ($ydfOrder->save()) $this->_convert($ydfOrder);
+            if ($ydfOrder->save())
+            {
+                $this->_convert($ydfOrder);
+                if ($this->status == self::STATUS_PAID)
+                {
+                    switch($this->type){
+                        case self::TYPE_ACCOUNT_DEPOSIT:
+                            $user = User::find()->where('id=:id', [':id'=>$this->userId])->one();
+                            if ($user)
+                            {
+                                $user->setAttribute('money', $user->getAttribute('money') + $this->amount);
+                                $user->save();
+                            }
+                            break;
+                    }
+                }
+            }
         }
         return $this;
     }
