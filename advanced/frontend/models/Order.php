@@ -76,6 +76,36 @@ class Order extends Model {
         return $this;
     }
 
+    public function load()
+    {
+        $ydfOrder = $this->loadYdfOrder();
+        if ($ydfOrder) $this->_convert($ydfOrder);
+        return $this;
+    }
+
+    public function paid()
+    {
+        $ydfOrder = $this->loadYdfOrder();
+        if ($this->status != self::STATUS_PAID)
+        {
+            $ydfOrder->setAttributes('pay_amount', $this->paid_amount);
+            $ydfOrder->setAttributes('update_time', time());
+            if ($this->paid_amount == $this->amount)
+            {
+                $this->status = self::STATUS_PAID;
+                $ydfOrder->setAttributes('pay_status', YdfOrder::STATUS_PAYMENT_PAID);
+                $ydfOrder->setAttributes('order_status', YdfOrder::STATUS_ORDER_COMPLETED);
+            }
+            if ($ydfOrder->save()) $this->_convert($ydfOrder);
+        }
+        return $this;
+    }
+
+    private function loadYdfOrder()
+    {
+        return YdfOrder::find()->where('id=:id and user_id=:userId and type=:typeId', [':id'=>$this->id,':userId'=>$this->userId,':typeId'=>$this->type])->one();
+    }
+
     private function _createSerial()
     {
         $orderNumber = false;
