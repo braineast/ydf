@@ -55,7 +55,6 @@ class CnpnrController extends Controller
                     $paymentOrder->paid();//处理支付单状态
                     if ($paymentOrder->status == OrderPayment::STATUS_PAID)
                     {
-                        echo(sprintf("支付单已经支付成功！现在开始处理订单(%s)...<br />", $paymentOrder->orderId));
                         //处理订单
                         $order = new Order();
                         $order->id = $paymentOrder->orderId;
@@ -65,7 +64,6 @@ class CnpnrController extends Controller
                         if ($order->status == Order::STATUS_UNPAID)
                         {
                             $order->paid_amount += $this->response[ChinaPNR::PARAM_TRANSAMT];
-                            echo(sprintf("现在，Order的paid_amount的值是:%s，汇付返回的是%s<br/>", $order->paid_amount, $this->response[ChinaPNR::PARAM_TRANSAMT]));
                             $order->paid();
                             if ($order->status == Order::STATUS_PAID) return true;
                         }
