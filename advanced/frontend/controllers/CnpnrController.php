@@ -61,7 +61,6 @@ class CnpnrController extends Controller
                         $order->userId = $paymentOrder->userId;
                         $order->type = Order::TYPE_ACCOUNT_DEPOSIT;
                         $order->load();
-                        var_dump($order);
                         if ($order->status == Order::STATUS_UNPAID)
                         {
                             $order->paid_amount += $this->response[ChinaPNR::PARAM_TRANSAMT];
