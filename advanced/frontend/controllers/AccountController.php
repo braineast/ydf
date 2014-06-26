@@ -24,7 +24,7 @@ class AccountController extends Controller
         //创建订单
         $order = new Order();
         $order->userId = 151;
-        $order->amount = 0.01;
+        $order->amount = 50.00;
         $order->create(Order::TYPE_ACCOUNT_DEPOSIT); //将新订单写入到数据表
         //获取订单rowId
         if ($order && $order->id)
@@ -58,6 +58,16 @@ class AccountController extends Controller
                 }
             }
         }
+    }
+
+    public function actionUnFreeze()
+    {
+        $cnpnr = new ChinaPNR(\Yii::$app->request->hostInfo);
+        $cnpnr->cmdId = ChinaPNR::CMD_UNFREEZE;
+        $cnpnr->ordId = '';
+        $cnpnr->ordDate = '';
+        $cnpnr->trxId = '';
+        exit($cnpnr->getLink());
     }
 
     public function actionDeposit()
