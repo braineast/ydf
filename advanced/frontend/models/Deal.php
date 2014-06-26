@@ -36,6 +36,7 @@ class Deal extends Model {
     const TYPE_LOAN_UN_AMORTIZED = 3; //到期本息
 
     public $id;
+    public $userId;
     public $name;
     public $amount;
     public $period;
@@ -66,6 +67,19 @@ class Deal extends Model {
         $this->managementFeeRate = 0.00;
         $this->hasGuarantee = false;
         $this->hasInsurance = false;
+    }
+
+    public function makePlans()
+    {
+        $ret = false;
+        try
+        {
+            //满标时间
+        }
+        catch(yii\base\Exception $e) {
+            $e->getTrace();
+        }
+        return $ret;
     }
 
     public static function getOne($condition = null)
