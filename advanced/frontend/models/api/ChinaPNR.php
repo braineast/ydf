@@ -14,6 +14,7 @@ class ChinaPNR {
     const VERSION20 = 20;
 
     const CMD_DEPOSIT = 'NetSave';
+    const CMD_UNFREEZE = 'UsrUnFreeze';
 
     const PARAM_VERSION = 'Version';
     const PARAM_CMDID = 'CmdId';
@@ -41,6 +42,7 @@ class ChinaPNR {
     private $link;
     private $queryString;
     private $maps;
+    private $signOrder;
     private $vSignOrder;
     private $retUrl;
     private $bgRetUrl;
@@ -63,7 +65,21 @@ class ChinaPNR {
             self::PARAM_USRCUSTID,self::PARAM_ORDID,self::PARAM_ORDDATE,
             self::PARAM_GATEBUSIID,self::PARAM_OPENBANKID,self::PARAM_DCFLAG,
             self::PARAM_TRANSAMT,self::PARAM_RETURL,self::PARAM_BGRETURL,
-            self::PARAM_MERPRIV,self::PARAM_CHKVALUE,
+            self::PARAM_MERPRIV,self::PARAM_CHKVALUE,self::RESP_TRXID
+        ];
+        $this->signOrder = [
+            self::CMD_DEPOSIT => [
+                0=>self::PARAM_VERSION, 1=>self::PARAM_CMDID, 2=>self::PARAM_MERCUSTID,
+                3=>self::PARAM_USRCUSTID,4=>self::PARAM_ORDID,5=>self::PARAM_ORDDATE,
+                6=>self::PARAM_GATEBUSIID,7=>self::PARAM_OPENBANKID,8=>self::PARAM_DCFLAG,
+                9=>self::PARAM_TRANSAMT,10=>self::PARAM_RETURL,11=>self::PARAM_BGRETURL,
+                12=>self::PARAM_MERPRIV
+            ],
+            self::CMD_UNFREEZE => [
+                0=>self::PARAM_VERSION, 1=>self::PARAM_CMDID, 2=>self::PARAM_MERCUSTID,
+                3=>self::PARAM_ORDID,4=>self::PARAM_ORDDATE,5=>self::RESP_TRXID,
+                6=>self::PARAM_RETURL,7=>self::PARAM_BGRETURL,8=>self::PARAM_MERPRIV
+            ],
         ];
         $this->vSignOrder = [
             self::CMD_DEPOSIT => [
@@ -71,6 +87,11 @@ class ChinaPNR {
                 3=>self::PARAM_USRCUSTID,4=>self::PARAM_ORDID,5=>self::PARAM_ORDDATE,
                 6=>self::PARAM_TRANSAMT,7=>self::RESP_TRXID,8=>self::PARAM_RETURL,
                 9=>self::PARAM_BGRETURL,10=>self::PARAM_MERPRIV
+            ],
+            self::CMD_UNFREEZE => [
+                0=>self::PARAM_CMDID, 1=>self::RESP_CODE, 2=>self::PARAM_MERCUSTID,
+                3=>self::PARAM_ORDID, 4=>self::PARAM_ORDDATE, 5=>self::RESP_TRXID,
+                6=>self::PARAM_RETURL, 7=>self::PARAM_BGRETURL, 8=>self::PARAM_MERPRIV
             ],
         ];
         $this->response = null;
@@ -158,34 +179,20 @@ class ChinaPNR {
 
     private function sign()
     {
-        $signMessage = null;
-        $chkValue = null;
-        switch ($this->params[self::PARAM_CMDID])
+        if (isset($this->params[self::PARAM_CMDID]))
         {
-            case self::CMD_DEPOSIT:
-                $signOrd = [
-                    0=>self::PARAM_VERSION, 1=>self::PARAM_CMDID, 2=>self::PARAM_MERCUSTID,
-                    3=>self::PARAM_USRCUSTID,4=>self::PARAM_ORDID,5=>self::PARAM_ORDDATE,
-                    6=>self::PARAM_GATEBUSIID,7=>self::PARAM_OPENBANKID,8=>self::PARAM_DCFLAG,
-                    9=>self::PARAM_TRANSAMT,10=>self::PARAM_RETURL,11=>self::PARAM_BGRETURL,
-                    12=>self::PARAM_MERPRIV
-                ];
-                $vSignOrd = [
-                    self::PARAM_CMDID,self::RESP_CODE,self::PARAM_MERCUSTID,
-                    self::PARAM_USRCUSTID,self::PARAM_ORDID,self::PARAM_ORDDATE,
-                    self::PARAM_TRANSAMT,self::RESP_TRXID,self::PARAM_RETURL,
-                    self::PARAM_BGRETURL,self::PARAM_MERPRIV
-                ];
-                $signMessage = $this->_getSignMessageStr($signOrd);
-                break;
+            $signMessage = null;
+            $chkValue = null;
+            $signMessage = $this->_getSignMessageStr($this->signOrder[$this->params[self::PARAM_CMDID]]);
+            if ($signMessage) $chkValue = $this->_sign($signMessage);
+            if ($chkValue)
+            {
+                $this->queryString .= '&'.self::PARAM_CHKVALUE.'='.$chkValue;
+                $this->params[self::PARAM_CHKVALUE] = $chkValue;
+            }
+            return $this;
         }
-        if ($signMessage) $chkValue = $this->_sign($signMessage);
-        if ($chkValue)
-        {
-            $this->queryString .= '&'.self::PARAM_CHKVALUE.'='.$chkValue;
-            $this->params[self::PARAM_CHKVALUE] = $chkValue;
-        }
-        return $this;
+        return false;
     }
 
     private function _sign($msg)
