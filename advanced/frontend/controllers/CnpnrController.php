@@ -43,7 +43,7 @@ class CnpnrController extends Controller
 
     protected function NetSave()
     {
-        if ($this->response[ChinaPNR::RESP_CODE] == '0000')
+        if ($this->response[ChinaPNR::RESP_CODE] == '000')
         {
             $userDataArr = $this->response[ChinaPNR::PARAM_MERPRIV];
             $orderId = $this->response[ChinaPNR::PARAM_ORDID];
@@ -92,5 +92,9 @@ class CnpnrController extends Controller
             return $this->$method();
         }
         return $this;
+    }
+
+    private function _log()
+    {
     }
 }
