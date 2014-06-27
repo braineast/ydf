@@ -42,8 +42,7 @@ $(document).ready(
                         alert("充值金额的数字应该至少不小于0.01元。");
                         return false;
                     }
-                    $.post(
-                        '/index.php?r=account/deposit',
+                    $.post(depositSubmitUrl,
                         {ajax:"1", amount:$('input.inputMoney').val()},
                         function(data)
                         {
