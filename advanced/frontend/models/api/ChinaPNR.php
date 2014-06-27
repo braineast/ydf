@@ -98,12 +98,11 @@ class ChinaPNR {
         $this->showId = self::PARAM_ORDID;
     }
 
-    public function deposit($who, $amount)
+    public function deposit($cnpnr_account_id)
     {
         $this->params[self::PARAM_CMDID] = self::CMD_DEPOSIT;
+        $this->params[self::PARAM_USRCUSTID] = $cnpnr_account_id;
         $this->params[self::PARAM_DCFLAG] = 'D';
-        $this->params[self::PARAM_USRCUSTID] = $who;
-        $this->params[self::PARAM_TRANSAMT] = number_format($amount, 2, '.', '');
         $this->params[self::PARAM_RETURL] = $this->retUrl;
         $this->params[self::PARAM_BGRETURL] = $this->bgRetUrl;
         $this->showId = self::RESP_TRXID;
@@ -173,7 +172,13 @@ class ChinaPNR {
     {
         $name = strtolower($name);
         foreach($this->maps as $field)
-            if ($name == strtolower($field)) $this->params[$field] = $value;
+        {
+            if ($name == strtolower($field))
+            {
+                if ($name == strtolower(self::PARAM_TRANSAMT)) $value = number_format($value, 2, '.', '');
+                $this->params[$field] = $value;
+            }
+        }
         return $this;
     }
 
@@ -218,7 +223,7 @@ class ChinaPNR {
         $len = sprintf("%04s", strlen($messageBody));
         $out = 'V'.$this->merId.$len.$messageBody.$chkValue;
         $out = sprintf("%04s", strlen($out)).$out;
-        $fp = fsockopen("115.28.152.140", 8866, $errno, $errstr, 10);
+        $fp = fsockopen("192.168.238.130", 8733, $errno, $errstr, 10);
         if ($fp)
         {
             fputs($fp, $out);
