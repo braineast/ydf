@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by IntelliJ IDEA.
- * User: al
+ * @Author: xiaohubb@hotmail.com
  * Date: 6/23/2014
  * Time: 6:41 PM
  */
@@ -35,3 +35,6 @@
             </tbody></table>
     </div>
 </div>
+<script type="text/javascript">
+    var depositSubmitUrl = <?= Yii::$app->request->url; ?>;
+</script>
