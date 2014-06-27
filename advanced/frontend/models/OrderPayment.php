@@ -33,14 +33,14 @@ class OrderPayment extends Model{
 
     public function init()
     {
-        $this->paymentId = self::PAYMENT_CREDIT;
+        $this->paymentId = self::PAYMENT_CNPNR;
         $this->status = self::STATUS_UNPAID;
         $this->paymentCount = 0;
         $this->paymentAt = time();
         $this->serial = $this->_createSerial();
     }
 
-    public function create()
+    public function createAAA()
     {
         $ydfPaymentNotice = new PaymentNotice();
         $ydfPaymentNotice->order_id = $this->orderId;
@@ -52,6 +52,32 @@ class OrderPayment extends Model{
         if ($ydfPaymentNotice->save())
             return $this->_convert($ydfPaymentNotice);
         return false;
+    }
+
+    public static function create(Order $order, $amount, $paymentMethod = self::PAYMENT_CNPNR)
+    {
+        $payment = new OrderPayment();
+        $payment->orderId = $order->id;
+        $payment->userId = $order->userId;
+        $payment->amount = $amount > $order->amount ? $order->amount : $amount;
+        $payment->paymentId = $paymentMethod;
+        $payment->save();
+        if ($payment->id) return $payment;
+        return null;
+    }
+
+    public function save()
+    {
+        $payment = new PaymentNotice();
+        if ($this->id) $payment = PaymentNotice::find()->where('id=:id', [':id'=>$this->id])->one();
+        $payment->setAttribute('user_id', $this->userId);
+        $payment->setAttribute('order_id', $this->orderId);
+        $payment->setAttribute('notice_sn', $this->serial);
+        $payment->setAttribute('payment_id', $this->paymentId);
+        $payment->setAttribute('money', $this->amount);
+        $payment->setAttribute('pay_time', time());
+        if ($payment->save()) $this->_convert($payment);
+        return $this;
     }
 
     private function _convert($ydfPaymentNotice)
