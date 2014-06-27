@@ -21,38 +21,20 @@ class AccountController extends Controller
     public $layout = 'ydf';
     public function actionIndex()
     {
-        //创建订单
-        $order = new Order();
-        $order->userId = 151;
-        $order->amount = 50.00;
-        $order->create(Order::TYPE_ACCOUNT_DEPOSIT); //将新订单写入到数据表
-        //获取订单rowId
-        if ($order && $order->id)
+        if ($order = Order::create(151,0.01,Order::TYPE_ACCOUNT_DEPOSIT))
         {
-            $orderPayment = new OrderPayment();
-            $orderPayment->orderId = $order->id; //为哪一张订单创建支付单
-            $orderPayment->userId = $order->userId;
-            $orderPayment->amount = $order->amount; //本支付单准备支付多少钱
-            $orderPayment->paymentId = OrderPayment::PAYMENT_CNPNR; //支付渠道id，此处假设是CNPNR支付
-            $orderPayment->create();
-            if ($orderPayment && $orderPayment->id)
+            $orderPayment = OrderPayment::create($order, 100.00);
+            if ($orderPayment)
             {
-                //获取用户标识信息
                 $ydfUser = YDFUser::find()->select(['id', 'user_name', 'is_hf_open'])->where('id=:id', [':id'=>$orderPayment->userId])->one();
-                $userIdentifier = [];
-                if ($ydfUser)
-                {
-                    $userIdentifier['id'] = $ydfUser->getAttribute('id');
-                    $userIdentifier['user_name'] = $ydfUser->getAttribute('user_name');
-                    $userIdentifier['cnpnrAccount'] = $ydfUser->getAttribute('is_hf_open');
-                }
                 if ($orderPayment->paymentId == OrderPayment::PAYMENT_CNPNR)
                 {
                     $cnpnr = new ChinaPNR(\Yii::$app->request->hostInfo);
-                    $cnpnr->deposit($userIdentifier['cnpnrAccount'], $orderPayment->amount);
+                    $cnpnr->deposit($ydfUser->getAttribute('is_hf_open'));
+                    $cnpnr->transAmt = $orderPayment->amount;
                     $cnpnr->ordId = $orderPayment->serial;
                     $cnpnr->ordDate = date('Ymd', $orderPayment->paymentAt);
-                    $cnpnr->merPriv = json_encode($userIdentifier);
+                    $cnpnr->merPriv = json_encode([$ydfUser->getAttribute('id'),$ydfUser->getAttribute('user_name'),$ydfUser->getAttribute('is_hf_open')]);
 //                    exit($cnpnr->getLink());
                     header('Location: ' . $cnpnr->getLink());
                 }
@@ -78,22 +60,26 @@ class AccountController extends Controller
             $amount = isset($_POST['amount']) && $_POST['amount'] > 0 ? $_POST['amount'] : null;
             if ($amount)
             {
-                $order = new Order();
-                $order->type = Order::TYPE_ACCOUNT_DEPOSIT;
-                $order->amount = $amount;
-                $cnpnr = new ChinaPNR(\Yii::$app->request->hostInfo);
-                $cnpnr->deposit('6000060001868215', '0.01');
-                $cnpnr->dcFlag = 'D';
-//                $cnpnr->usrCustId = '6000060001868215';
-//                $cnpnr->transAmt = number_format($amount, 2, '.', '');
-//                $cnpnr->returl = 'http://www.yidaifa.com/return.php';
-//                $cnpnr->bgreturl = 'http://www.yidaifa.com/return.php';
-                $cnpnr->ordId = $order->serial;
-                $cnpnr->ordDate = substr($cnpnr->ordId, 0, 8);
-                $cnpnr->merPriv = '{name: "李晓", baby: "小虎"}';
-                $redirectUrl = $cnpnr->getLink();
-                if ($ajax) exit($redirectUrl);
-                exit("<a href=\"".$redirectUrl."\">现在支付</a>");
+                if ($order = Order::create(151,0.01,Order::TYPE_ACCOUNT_DEPOSIT))
+                {
+                    $orderPayment = OrderPayment::create($order, 100.00);
+                    if ($orderPayment)
+                    {
+                        $ydfUser = YDFUser::find()->select(['id', 'user_name', 'is_hf_open'])->where('id=:id', [':id'=>$orderPayment->userId])->one();
+                        if ($orderPayment->paymentId == OrderPayment::PAYMENT_CNPNR)
+                        {
+                            $cnpnr = new ChinaPNR(\Yii::$app->request->hostInfo);
+                            $cnpnr->deposit($ydfUser->getAttribute('is_hf_open'));
+                            $cnpnr->transAmt = $orderPayment->amount;
+                            $cnpnr->ordId = $orderPayment->serial;
+                            $cnpnr->ordDate = date('Ymd', $orderPayment->paymentAt);
+                            $cnpnr->merPriv = json_encode([$ydfUser->getAttribute('id'),$ydfUser->getAttribute('user_name'),$ydfUser->getAttribute('is_hf_open')]);
+                            $redirectUrl = $cnpnr->getLink();
+                            if ($ajax) exit($redirectUrl);
+                            exit("<a href=\"".$redirectUrl."\">现在支付</a>");
+                        }
+                    }
+                }
             }
         }
         return $this->render('deposit');
