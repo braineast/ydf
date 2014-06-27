@@ -44,17 +44,29 @@ class Order extends Model {
         $this->updatedAt = $this->createdAt;
     }
 
-    public function create($orderType)
+    public static function create($userId, $amount, $orderType)
     {
-        $this->type = $orderType;
-        $ydfOrder = new YdfOrder();
-        $ydfOrder->setAttribute('type', $this->type);
-        $ydfOrder->setAttribute('deal_total_price', number_format($this->amount, 4, '.', ''));
-        $ydfOrder->setAttribute('total_price', $ydfOrder->getAttribute('deal_total_price'));
-        $ydfOrder->setAttribute('order_sn', $this->serial);
-        $ydfOrder->setAttribute('user_id', $this->userId);
-        if ($ydfOrder->save()) return $this->_convert($ydfOrder);
-        else return false;
+        $order = new Order();
+        $order->userId = $userId;
+        $order->amount = $amount;
+        $order->type = $orderType;
+        $order->save();
+        return $order;
+    }
+
+    public function save()
+    {
+        $isNewRecord = $this->id ? false : true;
+        $order = new YdfOrder();
+        if (!$isNewRecord)
+            $order = YdfOrder::find()->where('id=:id', [':id'=>$this->id])->one();
+        $order->setAttribute('user_id', $this->userId);
+        $order->setAttribute('type', $this->type);
+        $order->setAttribute('order_sn', $this->serial);
+        $order->setAttribute('deal_total_price', $this->amount);
+        $order->setAttribute('total_price', $order->getAttribute('deal_total_price'));
+        if ($order->save()) return $this->_convert($order);
+        return null;
     }
 
     private function _convert($ydfOrder)
