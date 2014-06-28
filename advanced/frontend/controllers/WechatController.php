@@ -67,7 +67,7 @@ class WechatController extends Controller
                         $xml->writeCdata('Picture Url Link');
                         $xml->endElement();
                         $xml->startElement('Url');
-                        $xml->writeCdata('New view link');
+                        $xml->writeCdata(\Yii::$app->urlManager->createUrl('/account/deposit'));
                         $xml->endElement();
                     $xml->endElement();
                 $xml->endElement();
