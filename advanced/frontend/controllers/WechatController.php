@@ -32,8 +32,8 @@ class WechatController extends Controller
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
-                $xml = new \SimpleXMLElement('');
-                $xml->addAttribute('ToUserName', $message->FromUserName);
+                $xml = new \SimpleXMLElement('<FromUserName><!CDATA['.$message->ToUsername.']]</FromUserName>');
+//                $xml->addAttribute('ToUserName', $message->FromUserName);
                 $xml->addAttribute('FromUserName', $message->ToUsername);
                 $xml->addAttribute('CreateTime', time());
                 $xml->addAttribute('MsgType', 'text');
