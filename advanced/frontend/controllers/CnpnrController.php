@@ -12,6 +12,7 @@ namespace frontend\controllers;
 use frontend\models\api\ChinaPNR;
 use frontend\models\Order;
 use frontend\models\OrderPayment;
+use frontend\models\ydf\PaymentNotice;
 use yii\web\Controller;
 
 class CnpnrController extends Controller
@@ -26,7 +27,7 @@ class CnpnrController extends Controller
         if (isset($_POST) && $_POST)
         {
             $cnpnr = new ChinaPNR(\Yii::$app->request->hostInfo);
-            $cnpnr->setResponse($_POST);
+            $cnpnr->setResponse($_POST, $backend);
             if ($response = $cnpnr->getResponse())
             {
                 $this->response = $response;
@@ -45,39 +46,24 @@ class CnpnrController extends Controller
     {
         if ($this->response[ChinaPNR::RESP_CODE] == '000')
         {
-            $userDataArr = $this->response[ChinaPNR::PARAM_MERPRIV];
             $orderId = $this->response[ChinaPNR::PARAM_ORDID];
-            //获取支付单
-            $paymentOrder = new OrderPayment();
-            $paymentOrder->userId = $userDataArr['id'];
-            $paymentOrder->serial = $orderId;
-            $paymentOrder->load();
-            if ($paymentOrder->status != OrderPayment::STATUS_PAID)
+            $paymentOrder = OrderPayment::loadBySerial($orderId); //获取支付单
+            if ($paymentOrder && $paymentOrder->status != OrderPayment::STATUS_PAID)
             {
-                //判断支付金额是否一致
-                if ($this->response[ChinaPNR::PARAM_TRANSAMT] == number_format($paymentOrder->amount, 2, '.', ''))
+                $paymentOrder->status = OrderPayment::STATUS_PAID;
+                $paymentOrder->save();
+                if ($paymentOrder->status == OrderPayment::STATUS_PAID)
                 {
-                    $paymentOrder->paid();//处理支付单状态
-                    if ($paymentOrder->status == OrderPayment::STATUS_PAID)
+                    $order = Order::loadById($paymentOrder->orderId); //获取支付单对应的订单，并进行处理
+                    if ($order && $order->status == Order::STATUS_UNPAID)
                     {
-                        //处理订单
-                        $order = new Order();
-                        $order->id = $paymentOrder->orderId;
-                        $order->userId = $paymentOrder->userId;
-                        $order->type = Order::TYPE_ACCOUNT_DEPOSIT;
-                        $order->load();
-                        if ($order->status == Order::STATUS_UNPAID)
-                        {
-                            $order->paid_amount += $this->response[ChinaPNR::PARAM_TRANSAMT];
-                            $order->paid();
-                            if ($order->status == Order::STATUS_PAID) return true;
-                        }
+                        $order->paid_amount += $this->response[ChinaPNR::PARAM_TRANSAMT];
+                        $order->save();
+                        if ($order->status == Order::STATUS_PAID) return true;
                     }
                 }
             }
         }
-        else {/*todo 记录日志 */}
-
         return false;
     }
 
@@ -94,7 +80,4 @@ class CnpnrController extends Controller
         return $this;
     }
 
-    private function _log()
-    {
-    }
 }
