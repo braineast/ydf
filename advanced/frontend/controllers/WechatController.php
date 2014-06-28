@@ -13,7 +13,6 @@ use yii\web\Controller;
 
 class WechatController extends Controller
 {
-    const PARAM_TOKEN = 'f1582cb3ffa64bd4bdfca73d8795';
     private $signature;
     private $timestamp;
     private $nonce;
@@ -26,12 +25,13 @@ class WechatController extends Controller
         if ($this->sign())
         {
             if ($echostr) exit($echostr);
+            file_put_contents(\Yii::$app->runtimePath.'wechat.log', sprintf("%s\n", trim(file_get_contents('php://input'))), FILE_APPEND);
         }
     }
 
     public function actionVerify($signature, $timestamp, $nonce, $echostr=null)
     {
-            $arr = [self::PARAM_TOKEN, $timestamp, $nonce];
+            $arr = [\Yii::$app->params['wechat']['token'], $timestamp, $nonce];
             sort($arr);
             $str = implode('',$arr);
             $str = sha1($str);
@@ -40,7 +40,7 @@ class WechatController extends Controller
 
     private function sign()
     {
-        $params = [self::PARAM_TOKEN, $this->timestamp, $this->nonce];
+        $params = [$this->timestamp, $this->nonce, \Yii::$app->params['wechat']['token']];
         sort($params);
         if ($this->signature == sha1(implode('',$params))) return true;
         exit(sha1(implode('',$params)));
