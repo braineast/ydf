@@ -25,14 +25,19 @@ class WechatController extends Controller
         $this->nonce = $nonce;
         if ($this->sign())
         {
-            if (isset($_POST) && $_POST)
+            if ($echostr) exit($echostr);
+            $postStr = trim(file_get_contents('php://input'));
+            if ($postStr && $message = simplexml_load_string($postStr))
             {
-                $ret = print_r($_POST, true);
-                file_put_contents('/tmp/posts', $ret, FILE_APPEND);
-            }
-            elseif ($echostr)
-            {
-                exit($echostr);
+                exit(
+                    sprintf("<xml>
+<ToUserName><![CDATA[%s]]></ToUserName>
+<FromUserName><![CDATA[%s]]></FromUserName>
+<CreateTime>%s</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[%s]]></Content>
+</xml>", $message->FromUserName, $message->ToUserName, time(), '欢迎致信易贷发公众服务号，我们正在进行开发测试。')
+                );
             }
         }
     }
