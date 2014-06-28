@@ -17,7 +17,7 @@ class WechatController extends Controller
     const PARAM_TIMESTAMP = 'timestamp';
     const PARAM_NONCE = 'nonce';
     const PARAM_ECHOSTR = 'echostr';
-    const PARAM_TOKEN = 'xiaohubb';
+    const PARAM_TOKEN = 'f1582cb3ffa64bd4bdfca73d8795';
 
 
     public function actionIndex()
