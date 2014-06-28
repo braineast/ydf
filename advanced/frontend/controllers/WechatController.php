@@ -18,7 +18,7 @@ class WechatController extends Controller
     private $timestamp;
     private $nonce;
 
-    public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
+    public function actionIndex($signature = null, $timestamp = null, $nonce = null, $echostr=null)
     {
         file_put_contents('/tmp/imcomming',sprintf("%s\n", json_encode($_REQUEST)), FILE_APPEND);
         $this->signature = $signature;
