@@ -19,6 +19,7 @@ class WechatController extends Controller
 
     public function actionIndex($signature = null, $timestamp = null, $nonce = null, $echostr=null)
     {
+        file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", trim(file_get_contents('php://input'))), FILE_APPEND);
         file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", trim($GLOBALS['HTTP_RAW_POST_DATA'])), FILE_APPEND);
         $this->signature = $signature;
         $this->timestamp = $timestamp;
