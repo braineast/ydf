@@ -18,9 +18,9 @@ class WechatController extends Controller
     private $nonce;
     public $enableCsrfValidation = false;
 
-    public function actionIndex($signature = null, $timestamp = null, $nonce = null, $echostr=null)
+    public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
     {
-        file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", trim(file_get_contents('php://input'))), FILE_APPEND);
+        file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", json_encode($_REQUEST)), FILE_APPEND);
         $this->signature = $signature;
         $this->timestamp = $timestamp;
         $this->nonce = $nonce;
@@ -31,7 +31,7 @@ class WechatController extends Controller
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
-                $ret = sprintf("<xml><ToUserName><![CDATA[yidaifa123]]></ToUserName><FromUserName><![CDATA[mp_009211212]]></FromUserName><CreateTime>1300921121</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[hellojookee]]></Content><MsgId>1231111121331</MsgId></xml>", $message->FromUserName, $message->ToUserName, time(),"Hello, Thank you!" );
+                $ret = sprintf("<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName><CreateTime>%s</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[Welcome!!]]></Content></xml>", $message->FromUserName, $message->ToUserName, time());
                 exit($ret);
             }
         }
