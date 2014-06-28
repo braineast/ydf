@@ -13,16 +13,26 @@ use yii\web\Controller;
 
 class WechatController extends Controller
 {
-    const PARAM_SIGNATURE = 'signature';
-    const PARAM_TIMESTAMP = 'timestamp';
-    const PARAM_NONCE = 'nonce';
-    const PARAM_ECHOSTR = 'echostr';
     const PARAM_TOKEN = 'f1582cb3ffa64bd4bdfca73d8795';
+    private $signature;
+    private $timestamp;
+    private $nonce;
 
-
-    public function actionIndex()
+    public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
     {
-        exit('This is index action.');
+        $this->signature = $signature;
+        $this->timestamp = $timestamp;
+        $this->nonce = $nonce;
+        if ($this->sign())
+        {
+            if (isset($_POST) && $_POST)
+            {
+            }
+            elseif ($echostr)
+            {
+                exit($echostr);
+            }
+        }
     }
 
     public function actionVerify()
@@ -36,5 +46,13 @@ class WechatController extends Controller
             $str = sha1($str);
             if ($_GET[self::PARAM_SIGNATURE] == $str) exit($_GET[self::PARAM_ECHOSTR]);
         }
+    }
+
+    private function sign()
+    {
+        $params = [self::PARAM_TOKEN, $this->timestamp, $this->nonce];
+        sort($params);
+        if ($this->signature == sha1(implode($params))) return true;
+        return false;
     }
 } 
