@@ -25,8 +25,8 @@ class WechatController extends Controller
         if ($this->sign())
         {
             if ($echostr) exit($echostr);
-            file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", trim(file_get_contents('php://input'))), FILE_APPEND);
-            $postStr = trim(file_get_contents('php://input'));
+            file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", trim($GLOBALS['HTTP_RAW_POST_DATA'])), FILE_APPEND);
+            $postStr = $GLOBALS['HTTP_RAW_POST_DATA'];
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
@@ -55,7 +55,7 @@ class WechatController extends Controller
     {
         $params = [$this->timestamp, $this->nonce, \Yii::$app->params['wechat']['token']];
         sort($params);
-        if ($this->signature == sha1(implode('',$params))) return true;
+        if ($this->signature == sha1(implode($params))) return true;
         exit(sha1(implode('',$params)));
         return false;
     }
