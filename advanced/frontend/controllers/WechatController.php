@@ -20,6 +20,7 @@ class WechatController extends Controller
 
     public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
     {
+        file_put_contents("/tmp/wechat.log", sprintf("%s\n", json_encode($_REQUEST)), FILE_APPEND);
         $this->signature = $signature;
         $this->timestamp = $timestamp;
         $this->nonce = $nonce;
@@ -55,7 +56,6 @@ class WechatController extends Controller
     {
         $params = [self::PARAM_TOKEN, $this->timestamp, $this->nonce];
         sort($params);
-        exit(sha1(implode('', $params)));
         if ($this->signature == sha1(implode('',$params))) return true;
         return false;
     }
