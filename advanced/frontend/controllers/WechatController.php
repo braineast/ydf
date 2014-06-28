@@ -16,6 +16,7 @@ class WechatController extends Controller
     private $signature;
     private $timestamp;
     private $nonce;
+    public $enableCsrfValidation = false;
 
     public function actionIndex($signature = null, $timestamp = null, $nonce = null, $echostr=null)
     {
