@@ -32,6 +32,20 @@ class WechatController extends Controller
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
+                $response = [
+                    'ToUserName'=>$message->FromUserName,
+                    'FromUserName'=>$message->ToUserName,
+                    'CreateTime'=>time(),
+                    'MsgType'=>'text',
+                    'Content'=>'您是说"'.$message->Content.'"，对吗？我们会努力为您发财做服务！',
+                ];
+                $responseString = '';
+                foreach($response as $k=>$v)
+                {
+                    $responseString .= '<'.$k.'>'.'<'.$v.'>'.'<'.$k.'>';
+                }
+                $xml = new \SimpleXMLElement($responseString);
+                exit($xml->asXML());
                 $ret = sprintf("<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName><CreateTime>%s</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[Welcome!!]]></Content></xml>", $message->FromUserName, $message->ToUserName, time());
                 exit($ret);
             }
