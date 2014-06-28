@@ -13,14 +13,13 @@ use yii\web\Controller;
 
 class WechatController extends Controller
 {
-    const PARAM_TOKEN = 'f1582cb3ffa64bd4bdfca73d8795';
+    const PARAM_TOKEN = 'f1582cb3ffa64bd43d8795';
     private $signature;
     private $timestamp;
     private $nonce;
 
     public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
     {
-        file_put_contents('/tmp/imcomming',sprintf("%s\n", json_encode($_REQUEST)), FILE_APPEND);
         $this->signature = $signature;
         $this->timestamp = $timestamp;
         $this->nonce = $nonce;
@@ -28,7 +27,6 @@ class WechatController extends Controller
         {
             if ($echostr) exit($echostr);
             $postStr = trim(file_get_contents('php://input'));
-            file_put_contents('/tmp/posts', $postStr, FILE_APPEND);
             if ($postStr && $message = simplexml_load_string($postStr))
             {
                 exit(
@@ -44,24 +42,21 @@ class WechatController extends Controller
         }
     }
 
-    public function actionVerify()
+    public function actionVerify($signature, $timestamp, $nonce, $echostr=null)
     {
-        if ($_GET && isset($_GET[self::PARAM_TIMESTAMP]) && isset($_GET[self::PARAM_NONCE]) && isset($_GET[self::PARAM_ECHOSTR]))
-        {
-            file_put_contents('/tmp/logs', serialize($_GET), FILE_APPEND);
-            $arr = [self::PARAM_TOKEN, $_GET[self::PARAM_TIMESTAMP], $_GET[self::PARAM_NONCE]];
+            $arr = [self::PARAM_TOKEN, $timestamp, $nonce];
             sort($arr);
             $str = implode('',$arr);
             $str = sha1($str);
-            if ($_GET[self::PARAM_SIGNATURE] == $str) exit($_GET[self::PARAM_ECHOSTR]);
-        }
+            if ($signature == $str) exit($echostr);
     }
 
     private function sign()
     {
         $params = [self::PARAM_TOKEN, $this->timestamp, $this->nonce];
         sort($params);
-        if ($this->signature == sha1(implode($params))) return true;
+        exit(sha1(implode('', $params)));
+        if ($this->signature == sha1(implode('',$params))) return true;
         return false;
     }
 } 
