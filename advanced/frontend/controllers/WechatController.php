@@ -44,10 +44,13 @@ class WechatController extends Controller
                 {
                     $responseString .= '<'.$k.'>'.'<'.$v.'>'.'<'.$k.'>';
                 }
-                $xml = new \SimpleXMLElement($responseString);
+                $xml = new \SimpleXMLElement('<xml></xml>');
+                $xml->addAttribute('ToUserName', $message->FromUserName);
+                $xml->addAttribute('FromUserName', $message->ToUsername);
+                $xml->addAttribute('CreateTime', time());
+                $xml->addAttribute('MsgType', 'text');
+                $xml->addAttribute('Content', '收到您的信息了，我们正在处理您的请求！');
                 exit($xml->asXML());
-                $ret = sprintf("<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName><CreateTime>%s</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[Welcome!!]]></Content></xml>", $message->FromUserName, $message->ToUserName, time());
-                exit($ret);
             }
         }
     }
@@ -69,4 +72,4 @@ class WechatController extends Controller
         exit(sha1(implode('',$params)));
         return false;
     }
-} 
+}
