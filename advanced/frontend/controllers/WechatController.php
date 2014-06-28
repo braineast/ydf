@@ -27,6 +27,7 @@ class WechatController extends Controller
         {
             if ($echostr) exit($echostr);
             $postStr = trim(file_get_contents('php://input'));
+            file_put_contents('/tmp/posts', $postStr, FILE_APPEND);
             if ($postStr && $message = simplexml_load_string($postStr))
             {
                 exit(
