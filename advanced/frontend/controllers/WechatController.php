@@ -28,6 +28,7 @@ class WechatController extends Controller
         {
             if ($echostr) exit($echostr);
             $postStr = trim(file_get_contents('php://input'));
+            file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", $postStr), FILE_APPEND);
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
