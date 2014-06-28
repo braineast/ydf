@@ -57,7 +57,7 @@ class WechatController extends Controller
                 $xml->endElement();
                 $xml->endDocument();
                 $message = $xml->outputMemory(true);
-                $message = preg_replace('<\?xml.*', '<xml>', $message);
+                $message = preg_replace('/^<\?xml.*$/', '<xml>', $message);
                 $message = $message.'</xml>';
                 file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', $message, FILE_APPEND);
                 exit($message);
