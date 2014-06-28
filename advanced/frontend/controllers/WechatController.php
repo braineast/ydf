@@ -39,7 +39,7 @@ class WechatController extends Controller
                 $message = simplexml_load_string($postStr);
                 $xml = new \XMLWriter();
                 $xml->openMemory();
-                $xml->startDocument();
+                $xml->startDocument(null);
                 $xml->startElement(self::FIELD_FROM);
                 $xml->writeCdata($message->ToUserName);
                 $xml->endElement();
