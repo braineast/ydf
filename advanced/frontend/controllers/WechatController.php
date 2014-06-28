@@ -17,7 +17,7 @@ class WechatController extends Controller
     private $timestamp;
     private $nonce;
 
-    public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
+    public function actionIndex($signature = null, $timestamp = null, $nonce = null, $echostr=null)
     {
         $this->signature = $signature;
         $this->timestamp = $timestamp;
