@@ -30,6 +30,7 @@ class ChinaPNR {
     const PARAM_BGRETURL = 'BgRetUrl';
     const PARAM_MERPRIV = 'MerPriv';
     const PARAM_CHKVALUE = 'ChkValue';
+    const PARAM_PRIVATE_SHOWID = 'showId';
 
     const RESP_CODE = 'RespCode';
     const RESP_DESC = 'RespDesc';
@@ -50,7 +51,7 @@ class ChinaPNR {
 
     public function __construct($hostInfo)
     {
-        $this->retUrl = $hostInfo . '/cnpnr2014';
+        $this->retUrl = $hostInfo . '/cnpnr';
         $this->bgRetUrl = $hostInfo . '/cnpnr/backend';
         $this->host = 'https://lab.chinapnr.com/muser/publicRequests';
         $this->merId = '830068';
@@ -110,7 +111,7 @@ class ChinaPNR {
     }
 
 
-    public function setResponse(array $responseArr)
+    public function setResponse(array $responseArr, $isBackend = false)
     {
         $cmdId = isset($responseArr[self::PARAM_CMDID]) && $responseArr[self::PARAM_CMDID] ? $responseArr[self::PARAM_CMDID] : null;
         $chkValue = isset($responseArr[self::PARAM_CHKVALUE]) && $responseArr[self::PARAM_CHKVALUE] ? $responseArr[self::PARAM_CHKVALUE] : null;
@@ -132,9 +133,14 @@ class ChinaPNR {
                     foreach($responseArr as $k => $v)
                     {
                         if ($k == self::RESP_DESC) $v = urldecode($v);
-                        if ($k == self::PARAM_MERPRIV) $v = json_decode(base64_decode($v), true);
+                        if ($k == self::PARAM_MERPRIV)
+                        {
+                            $v = json_decode(base64_decode($v), true);
+                            if ($isBackend) $v['return'] = 'backend';
+                        }
                         $this->response[$k] = $v;
                     }
+                    Log::cnpnr($this->response);
                 }
                 else exit(验签失败);
             }
@@ -203,7 +209,7 @@ class ChinaPNR {
     private function _sign($msg)
     {
         $sign = null;
-        $fp = fsockopen("115.28.152.140", 8866, $errno, $errstr, 10);
+        $fp = fsockopen("192.168.238.130", 8733, $errno, $errstr, 10);
         if ($fp)
         {
             $len = sprintf("%04s", strlen($msg));
@@ -247,7 +253,7 @@ class ChinaPNR {
                 if ($name == self::PARAM_MERPRIV)
                 {
                     $val = json_decode($val, true);
-                    $val['showId'] = $this->showId;
+                    $val[self::PARAM_PRIVATE_SHOWID] = $this->showId;
                     $val = base64_encode(json_encode($val));
                 }
                 $message .= $val;

@@ -27,10 +27,14 @@ class WechatController extends Controller
 
     public function actionVerify()
     {
-        $arr = [self::PARAM_TOKEN, $_GET[self::PARAM_TIMESTAMP], $_GET[self::PARAM_NONCE]];
-        sort($arr);
-        $str = implode('',$arr);
-        $str = sha1($str);
-        if ($_GET[self::PARAM_SIGNATURE] == $str) exit($_GET[self::PARAM_ECHOSTR]);
+        if ($_GET && isset($_GET[self::PARAM_TIMESTAMP]) && isset($_GET[self::PARAM_NONCE]) && isset($_GET[self::PARAM_ECHOSTR]))
+        {
+            file_put_contents('/tmp/logs', serialize($_GET), FILE_APPEND);
+            $arr = [self::PARAM_TOKEN, $_GET[self::PARAM_TIMESTAMP], $_GET[self::PARAM_NONCE]];
+            sort($arr);
+            $str = implode('',$arr);
+            $str = sha1($str);
+            if ($_GET[self::PARAM_SIGNATURE] == $str) exit($_GET[self::PARAM_ECHOSTR]);
+        }
     }
 } 

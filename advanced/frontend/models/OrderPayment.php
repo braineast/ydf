@@ -10,6 +10,7 @@ namespace frontend\models;
 
 
 use frontend\models\ydf\PaymentNotice;
+use yii\base\Exception;
 use yii\base\Model;
 
 class OrderPayment extends Model{
@@ -70,17 +71,25 @@ class OrderPayment extends Model{
     {
         $payment = new PaymentNotice();
         if ($this->id) $payment = PaymentNotice::find()->where('id=:id', [':id'=>$this->id])->one();
+        if ($this->status == self::STATUS_PAID)
+        {
+            if ($payment->getAttribute('is_paid') == PaymentNotice::STATUS_UNPAID)
+            {
+                $payment->setAttribute('is_paid', PaymentNotice::STATUS_PAID);
+                $payment->setAttribute('pay_time', time());
+            }
+        }
+        else $payment->setAttribute('pay_time', 0);
         $payment->setAttribute('user_id', $this->userId);
         $payment->setAttribute('order_id', $this->orderId);
         $payment->setAttribute('notice_sn', $this->serial);
-        $payment->setAttribute('payment_id', $this->paymentId);
         $payment->setAttribute('money', $this->amount);
-        $payment->setAttribute('pay_time', time());
+        $payment->setAttribute('payment_id', $this->paymentId);
         if ($payment->save()) $this->_convert($payment);
         return $this;
     }
 
-    private function _convert($ydfPaymentNotice)
+    public function _convert($ydfPaymentNotice)
     {
         $params = $ydfPaymentNotice;
         if ($ydfPaymentNotice instanceof ydf\PaymentNotice)
@@ -103,6 +112,23 @@ class OrderPayment extends Model{
         $ydfPaymentNotice = PaymentNotice::find()->where('user_id=:userId and notice_sn=:id', [':userId'=>$this->userId,':id'=>$this->serial])->one();
         if ($ydfPaymentNotice)
             return $this->_convert($ydfPaymentNotice);
+        return false;
+    }
+
+    public static function loadBySerial($serial)
+    {
+        try {
+            $ydfPaymentNotice = PaymentNotice::find()->where('notice_sn=:payment_order_sn', [':payment_order_sn'=>$serial])->one();
+            if ($ydfPaymentNotice)
+            {
+                $orderPayment = new OrderPayment();
+                $orderPayment->_convert($ydfPaymentNotice);
+                return $orderPayment;
+            }
+        }
+        catch (Exception $e) {
+            $e->getTrace();
+        }
         return false;
     }
 

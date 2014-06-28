@@ -57,6 +57,7 @@ class Order extends Model {
     public function save()
     {
         $isNewRecord = $this->id ? false : true;
+        $needUpdateTime = false;
         $order = new YdfOrder();
         if (!$isNewRecord)
             $order = YdfOrder::find()->where('id=:id', [':id'=>$this->id])->one();
@@ -65,11 +66,28 @@ class Order extends Model {
         $order->setAttribute('order_sn', $this->serial);
         $order->setAttribute('deal_total_price', $this->amount);
         $order->setAttribute('total_price', $order->getAttribute('deal_total_price'));
+        $order->setAttribute('pay_amount', $this->paid_amount);
+        $this->status = $this->paid_amount == $this->amount ? self::STATUS_PAID : self::STATUS_UNPAID;
+        if ($this->status == self::STATUS_PAID)
+        {
+            if ($order->getAttribute('pay_status') == YdfOrder::STATUS_PAYMENT_UNPAID)
+            {
+                $order->setAttribute('pay_status', YdfOrder::STATUS_PAYMENT_PAID);
+                $order->setAttribute('pay_amount', $this->paid_amount);
+                $needUpdateTime = true;
+            }
+            if ($order->getAttribute('order_status') == YdfOrder::STATUS_ORDER_CREATED)
+            {
+                $order->setAttribute('order_status', YdfOrder::STATUS_ORDER_COMPLETED);
+                $needUpdateTime = true;
+            }
+        }
+        if ($needUpdateTime) $order->setAttribute('update_time', time());
         if ($order->save()) return $this->_convert($order);
         return null;
     }
 
-    private function _convert($ydfOrder)
+    public function _convert($ydfOrder)
     {
         $data = $ydfOrder;
         if ($ydfOrder instanceof ydf\Order)
@@ -87,6 +105,18 @@ class Order extends Model {
             $this->createdAt = $data['create_time'];
         }
         return $this;
+    }
+
+    public static function loadById($id)
+    {
+        $ydfOrder = YdfOrder::find()->where('id=:id', [':id'=>$id])->one();
+        if ($ydfOrder)
+        {
+            $order = new Order();
+            $order->_convert($ydfOrder);
+            return $order;
+        }
+        return false;
     }
 
     public function load()

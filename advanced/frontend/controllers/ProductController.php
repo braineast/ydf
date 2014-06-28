@@ -38,7 +38,7 @@ class ProductController extends Controller
     {
         if ($id)
         {
-            $deal = Deal::getOne(intval($id));
+            $deal = Deal::loadById(intval($id));
             if ($deal)
                 return $this->render('view', ['deal'=>$deal]);
         }

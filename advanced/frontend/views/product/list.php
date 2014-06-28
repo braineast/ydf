@@ -34,7 +34,7 @@ $this->title = '理财列表';
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr align="center">
                     <td align="left" colspan="2">
-                        <span><?= \yii\helpers\Html::a($deal['name'], Yii::$app->urlManager->createUrl('product/view&id='.$deal['id'])) ?></span>
+                        <span><?= \yii\helpers\Html::a($deal['name'], Yii::$app->urlManager->createUrl('product/view?id='.$deal['id'])) ?></span>
                         <?php if ($deal['hasGuarantee']): ?><img class="icon" src="images/home7_03-03.png"><?php endif; ?>
                         <?php if ($deal['hasInsurance']): ?><img class="icon" src="images/home7_03.png"><?php endif; ?>
                     </td>

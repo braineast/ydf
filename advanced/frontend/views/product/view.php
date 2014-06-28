@@ -10,7 +10,7 @@
 <div class="financingList">
     <table width="100%" border="0" cellspacing="0" cellpadding="0" style=" border-bottom:0">
         <tbody><tr>
-            <td colspan="2"><span><?= $deal->name ?></span><img class="icon" src="images/home7_03.png"></td>
+            <td colspan="2"><span><?= $deal->name ?></span><img class="icon" src="/images/home7_03.png"></td>
             <td></td>
         </tr>
         <tr>
@@ -25,7 +25,14 @@
             <td colspan="">还款方式：<?= Yii::$app->params['loanType'][$deal['loanType']]; ?></td>
         </tr>
         <tr>
-            <td colspan="">剩余时间：3天10时57分</td>
+            <td colspan="">
+                <?php
+                    if ($deal->state == \frontend\models\Deal::STATE_OPEN)
+                    {
+                        echo("剩余时间：3天10小时29分");
+                    }
+                ?>
+            </td>
         </tr>
         </tbody></table>
     <table class="list_table" cellpadding="0" cellspacing="0" width="100%" style=" padding-bottom:0; padding-top:0;border-bottom:0">
@@ -50,10 +57,10 @@
 <table width="100%" border="0" class="tableOut" cellpadding="0" cellspacing="0">
     <tbody><tr onclick="hide1();" id="topBtn1" style="display:none;">
         <th width="50%" align="left">项目信息</th>
-        <th width="50%" align="right"><img src="images/close.png"></th></tr>
+        <th width="50%" align="right"><img src="/images/close.png"></th></tr>
     <tr onclick="show1();" id="bottomBtn1">
         <th width="50%" align="left">项目信息</th>
-        <th align="right"><img src="images/open.png"></th>
+        <th align="right"><img src="/images/open.png"></th>
     </tr>
     <tr>
         <td height="" colspan="2" style=" padding:0 30px;"><table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableIn" id="greenTable1" style="display:">
@@ -65,19 +72,19 @@
                 </tr>
                 <tr>
                     <td width="29%">身份证</td>
-                    <td width="22%"><img src="images/home6_03-02.png"></td>
+                    <td width="22%"><img src="/images/home6_03-02.png"></td>
                     <td width="31%">收入认证</td>
-                    <td width="18%"><img src="images/home6_03-02.png"></td>
+                    <td width="18%"><img src="/images/home6_03-02.png"></td>
                 </tr>
                 <tr>
                     <td>工作认证</td>
-                    <td><img src="images/home6_03-02.png"></td>
+                    <td><img src="/images/home6_03-02.png"></td>
                     <td>居住地认证</td>
-                    <td><img src="images/home6_03-02.png"></td>
+                    <td><img src="/images/home6_03-02.png"></td>
                 </tr>
                 <tr>
                     <td>信用报告</td>
-                    <td><img src="images/home6_03-02.png"></td>
+                    <td><img src="/images/home6_03-02.png"></td>
                     <td></td>
                     <td></td>
                 </tr>
@@ -87,10 +94,10 @@
 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="tableOut">
     <tbody><tr onclick="hide2();" id="topBtn2" style="display:none;">
         <th width="50%" align="left">借款人信息</th>
-        <th width="50%" align="right"><img src="images/close.png"></th></tr>
+        <th width="50%" align="right"><img src="/images/close.png"></th></tr>
     <tr onclick="show2();" id="bottomBtn2">
         <th width="50%" align="left">借款人信息</th>
-        <th align="right"><img src="images/open.png"></th>
+        <th align="right"><img src="/images/open.png"></th>
     </tr>
     <tr><td height="" colspan="2" style=" padding:0 30px;"><table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableIn" id="greenTable2" style="display:">
                 <tbody><tr>
@@ -131,7 +138,7 @@
         <th width="50%" align="right"><img src="styles/images/close.png"></th></tr>
     <tr onclick="show3();" id="bottomBtn3">
         <th width="50%" align="left">担保信息</th>
-        <th align="right"><img src="images/open.png"></th>
+        <th align="right"><img src="/images/open.png"></th>
     </tr>
     <tr>
         <td height="" colspan="2" style=" padding:0 30px;"><table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableIn" id="greenTable3" style="display:">
@@ -150,7 +157,7 @@
         <th width="50%" align="right"><img src="styles/images/close.png"></th></tr>
     <tr onclick="show4();" id="bottomBtn4">
         <th width="50%" align="left">还款计划</th>
-        <th align="right"><img src="images/open.png"></th>
+        <th align="right"><img src="/images/open.png"></th>
     </tr>
     <tr>
         <td height="" colspan="2" style=" padding:0 30px;"><table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableIn" id="greenTable4" style="display:">
@@ -196,7 +203,7 @@
         <th width="50%" align="right"><img src="styles/images/close.png"></th></tr>
     <tr onclick="show5();" id="bottomBtn5">
         <th width="50%" align="left">投标记录</th>
-        <th align="right"><img src="images/open.png"></th>
+        <th align="right"><img src="/images/open.png"></th>
     </tr>
     <tr>
         <td height="" colspan="2" style=" padding:0 30px;"><table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableIn" id="greenTable5" style="display:">

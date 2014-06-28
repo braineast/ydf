@@ -10,6 +10,7 @@ namespace frontend\models;
 
 use yii;
 use yii\base\Model;
+use frontend\models\ydf\Deal as YDFDeal;
 
 class Deal extends Model {
     const STATE_PREPARE = 0;
@@ -58,6 +59,8 @@ class Deal extends Model {
     public $borrowerInfo;
     public $description;
     public $guarantee;
+    public $startTime;
+    public $endTime;
 
     public function init()
     {
@@ -67,6 +70,20 @@ class Deal extends Model {
         $this->managementFeeRate = 0.00;
         $this->hasGuarantee = false;
         $this->hasInsurance = false;
+    }
+
+    public static function loadById($dealId)
+    {
+        $ydfDeal = YDFDeal::find()->where('id=:id', [':id'=>$dealId])->one();
+        if ($ydfDeal)
+        {
+            $attributes = self::convert($ydfDeal);
+            $deal = new Deal();
+            foreach ($attributes as $fieldName => $ydfDealAttributeValue)
+                $deal->$fieldName = $ydfDealAttributeValue;
+            return $deal;
+        }
+        return false;
     }
 
     public function makePlans()
