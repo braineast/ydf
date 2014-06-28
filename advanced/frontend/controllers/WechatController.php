@@ -13,6 +13,11 @@ use yii\web\Controller;
 
 class WechatController extends Controller
 {
+    const FIELD_TO = 'ToUserName';
+    const FIELD_FROM = 'FromUserName';
+    const FIELD_CREATE_TIME = 'CreateTime';
+    const FIELD_MSG_TYPE = 'MsgType';
+    const FIELD_CONTENT = 'Content';
     private $signature;
     private $timestamp;
     private $nonce;
@@ -32,14 +37,28 @@ class WechatController extends Controller
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
-                $xml = new \SimpleXMLElement('<xml></xml>');
-                $xml->addChild('ToUserName', $message->FromUserName);
-                $xml->addChild('FromUserName', $message->ToUsername);
-                $xml->addChild('CreateTime', time());
-                $xml->addChild('MsgType', 'text');
-                $xml->addChild('Content', '收到您的信息了，我们正在处理您的请求！');
-                file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', $xml->asXML(), FILE_APPEND);
-                exit($xml->asXML());
+                $xml = new \XMLWriter();
+                $xml->openMemory();
+                $xml->startDocument();
+                $xml->startElement(self::FIELD_FROM);
+                $xml->writeCdata($message->ToUserName);
+                $xml->endElement();
+                $xml->startElement(self::FIELD_TO);
+                $xml->writeCdata($message->FromUserName);
+                $xml->endElement();
+                $xml->startElement(self::FIELD_CREATE_TIME);
+                $xml->text(time());
+                $xml->endElement();
+                $xml->startElement(self::FIELD_MSG_TYPE);
+                $xml->text('text');
+                $xml->endElement();
+                $xml->startElement(self::FIELD_CONTENT);
+                $xml->writeCdata('欢迎致信易贷发，我们将竭诚为您服务！');
+                $xml->endElement();
+                $xml->endDocument();
+                $message = $xml->outputMemory(true);
+                file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', $message, FILE_APPEND);
+                exit($message);
             }
         }
     }
