@@ -32,24 +32,13 @@ class WechatController extends Controller
             if ($postStr)
             {
                 $message = simplexml_load_string($postStr);
-                $response = [
-                    'ToUserName'=>$message->FromUserName,
-                    'FromUserName'=>$message->ToUserName,
-                    'CreateTime'=>time(),
-                    'MsgType'=>'text',
-                    'Content'=>'您是说"'.$message->Content.'"，对吗？我们会努力为您发财做服务！',
-                ];
-                $responseString = '';
-                foreach($response as $k=>$v)
-                {
-                    $responseString .= '<'.$k.'>'.'<'.$v.'>'.'<'.$k.'>';
-                }
-                $xml = new \SimpleXMLElement('<xml></xml>');
+                $xml = new \SimpleXMLElement('');
                 $xml->addAttribute('ToUserName', $message->FromUserName);
                 $xml->addAttribute('FromUserName', $message->ToUsername);
                 $xml->addAttribute('CreateTime', time());
                 $xml->addAttribute('MsgType', 'text');
                 $xml->addAttribute('Content', '收到您的信息了，我们正在处理您的请求！');
+                file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', $xml->asXML(), FILE_APPEND);
                 exit($xml->asXML());
             }
         }
