@@ -11,6 +11,7 @@ namespace frontend\controllers;
 
 use frontend\models\Account;
 use frontend\models\api\ChinaPNR;
+use frontend\models\api\Log;
 use frontend\models\Order;
 use frontend\models\OrderPayment;
 use frontend\models\ydf\User as YDFUser;
@@ -19,6 +20,7 @@ use yii\web\Controller;
 class AccountController extends Controller
 {
     public $layout = 'ydf';
+
     public function actionIndex()
     {
         if ($order = Order::create(151,0.01,Order::TYPE_ACCOUNT_DEPOSIT))
@@ -60,7 +62,7 @@ class AccountController extends Controller
             $amount = isset($_POST['amount']) && $_POST['amount'] > 0 ? $_POST['amount'] : null;
             if ($amount)
             {
-                if ($order = Order::create(151,0.01,Order::TYPE_ACCOUNT_DEPOSIT))
+                if ($order = Order::create(151,$amount,Order::TYPE_ACCOUNT_DEPOSIT))
                 {
                     $orderPayment = OrderPayment::create($order, 100.00);
                     if ($orderPayment)
@@ -73,7 +75,7 @@ class AccountController extends Controller
                             $cnpnr->transAmt = $orderPayment->amount;
                             $cnpnr->ordId = $orderPayment->serial;
                             $cnpnr->ordDate = date('Ymd', $orderPayment->paymentAt);
-                            $cnpnr->merPriv = json_encode([$ydfUser->getAttribute('id'),$ydfUser->getAttribute('user_name'),$ydfUser->getAttribute('is_hf_open')]);
+                            $cnpnr->merPriv = json_encode(['id'=>$ydfUser->getAttribute('id'),'username'=>$ydfUser->getAttribute('user_name'),'cnpnr_acct'=>$ydfUser->getAttribute('is_hf_open')]);
                             $redirectUrl = $cnpnr->getLink();
                             if ($ajax) exit($redirectUrl);
                             exit("<a href=\"".$redirectUrl."\">现在支付</a>");
