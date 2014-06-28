@@ -27,7 +27,8 @@ class WechatController extends Controller
         {
             if (isset($_POST) && $_POST)
             {
-                exit(print_r($_POST));
+                $ret = print_r($_POST, true);
+                file_put_contents('/tmp/posts', $ret, FILE_APPEND);
             }
             elseif ($echostr)
             {
