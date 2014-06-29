@@ -50,17 +50,17 @@ class WechatController extends Controller
         file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', 'I am event method!', FILE_APPEND);
         $eventName = $this->postXml->Event;
         $eventKey = $this->postXml->EventKey;
-        file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $eventName.'_'.$eventKey, FILE_APPEND);
-        if (method_exists($this, $eventName)) return $this->$eventName($eventKey);
+        if ('subscribe' == $eventName) return $this->subscribe();
+        if ('unsubscribe' == $eventName) return $this->unsubscribe();
         return false;
     }
 
-    public function unsubscribe($key = null)
+    public function unsubscribe()
     {
         return file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', 'I am unsubscribe method.', FILE_APPEND);
     }
 
-    private function subscribe($eventKey = null)
+    private function subscribe()
     {
         //对订阅用户回复注册绑定的图文内容（news）
         $xml = $this->xmlWriter();
