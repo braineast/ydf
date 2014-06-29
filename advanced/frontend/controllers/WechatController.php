@@ -47,6 +47,7 @@ class WechatController extends Controller
 
     private function event()
     {
+        file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', 'I am event method!', FILE_APPEND);
         $eventName = $this->postXml->Event;
         $eventKey = $this->postXml->EventKey;
         file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $eventName.'_'.$eventKey, FILE_APPEND);
