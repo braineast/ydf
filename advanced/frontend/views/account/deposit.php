@@ -30,11 +30,11 @@
             </tbody></table>
         <table class="recept_role" width="100%" style=" margin-top:48px">
             <tbody><tr>
-                <td colspan="2"><button class="btn_adapt_100">立即充值</button></td>
+                <td colspan="2"><button class="btn_adapt_100" name="deposit">立即充值</button></td>
             </tr>
             </tbody></table>
     </div>
 </div>
 <script type="text/javascript">
-    var depositSubmitUrl = <?= Yii::$app->request->url; ?>;
+    var depositSubmitUrl = "<?= Yii::$app->request->url; ?>";
 </script>

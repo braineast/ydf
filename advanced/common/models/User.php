@@ -20,13 +20,25 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
+ * @property string $user_pwd write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    public $loginUrl = ['user/login'];
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
 
     const ROLE_USER = 10;
+
+    public static function getDb()
+    {
+        return \Yii::$app->get('ydf_db');
+    }
+
+    public static function tableName()
+    {
+        return 'fanwe_user';
+    }
 
     /**
      * Creates a new user
@@ -40,7 +52,7 @@ class User extends ActiveRecord implements IdentityInterface
         $user = new static();
         $user->setAttributes($attributes);
         $user->setPassword($attributes['password']);
-        $user->generateAuthKey();
+//        $user->generateAuthKey();
         if ($user->save()) {
             return $user;
         } else {
@@ -88,7 +100,12 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['user_name' => $username]);
+    }
+
+    public static function findByEmail($email)
+    {
+        return static::findOne(['email'=>$email]);
     }
 
     /**
@@ -121,11 +138,17 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->getPrimaryKey();
     }
 
+    public function getUsername()
+    {
+        return $this->user_name;
+    }
+
     /**
      * @inheritdoc
      */
     public function getAuthKey()
     {
+        return null;
         return $this->auth_key;
     }
 
@@ -134,6 +157,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
+        return true;
         return $this->getAuthKey() === $authKey;
     }
 
@@ -145,7 +169,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return Security::validatePassword($password, $this->password_hash);
+        return md5($password) == $this->user_pwd;
     }
 
     /**
@@ -155,7 +179,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-        $this->password_hash = Security::generatePasswordHash($password);
+        $this->user_pwd = md5($password);
     }
 
     /**
@@ -205,4 +229,5 @@ class User extends ActiveRecord implements IdentityInterface
             ['email', 'unique'],
         ];
     }
+
 }

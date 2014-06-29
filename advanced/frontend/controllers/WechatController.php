@@ -24,6 +24,11 @@ class WechatController extends Controller
     private $nonce;
     private $postXml;
 
+    public function actionTest()
+    {
+        var_dump($this->createMenu());
+    }
+
     public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
     {
         file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", json_encode($_REQUEST)), FILE_APPEND);
@@ -73,7 +78,7 @@ class WechatController extends Controller
         $xml->startElement('Articles');
         $xml->startElement('item');
         $xml->startElement('Title');
-        $xml->writeCdata('绑定平台账户，开启财富之旅。');
+        $xml->writeCdata('绑定平台账户，开启财富人生。');
         $xml->endElement();
         $xml->startElement('Description');
         $xml->writeCdata('易贷发是一家高科技网络金融服务公司，创始团队是来自于金融、法律和互联网行业的资深人士，我们希望通过跨界的合作与知识的共享，通过互联网技术让更多的人享受金融服务，实践普惠金融。');
@@ -121,5 +126,47 @@ class WechatController extends Controller
         if ($this->signature == sha1(implode($params))) return true;
         exit(sha1(implode('',$params)));
         return false;
+    }
+
+    private function getAccessToken()
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.\Yii::$app->params['wechat']['appid'].'&secret='.\Yii::$app->params['wechat']['appsecret'];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $htmlReturn = curl_exec($ch);
+        curl_close($ch);
+        $result = json_decode($htmlReturn, true);
+        return $result['access_token'];
+    }
+
+    private function getMenu()
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/get?access_token='.$this->getAccessToken();
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $htmlMessage = curl_exec($ch);
+        return json_decode($htmlMessage, true);
+    }
+
+    private function createMenu()
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token='.$this->getAccessToken();
+        $menu = [
+            'button'=>[
+                [
+                    'type'=>'click',
+                    'name'=>'dev',
+                    'key'=>'vt1001_account',
+                ],
+            ],
+        ];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($menu));
+        $htmlMessage = curl_exec($ch);
+        curl_close($ch);
+        var_dump($htmlMessage);
+        return json_decode($htmlMessage, true);
     }
 }

@@ -32,7 +32,7 @@ $(document).ready(
             }
         });
 
-        $('button.btn_adapt_100').click(
+        $('button.btn_adapt_100[name="deposit"]').click(
             function (event) {
                 var isValid = chkFloat($('input.inputMoney').val());
                 if (isValid == true)
