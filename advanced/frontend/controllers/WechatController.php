@@ -13,6 +13,7 @@ use yii\web\Controller;
 
 class WechatController extends Controller
 {
+    public $enableCsrfValidation = false;
     const FIELD_TO = 'ToUserName';
     const FIELD_FROM = 'FromUserName';
     const FIELD_CREATE_TIME = 'CreateTime';
@@ -21,7 +22,7 @@ class WechatController extends Controller
     private $signature;
     private $timestamp;
     private $nonce;
-    public $enableCsrfValidation = false;
+    private $postXml;
 
     public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
     {
@@ -36,58 +37,73 @@ class WechatController extends Controller
             file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', sprintf("%s\n", $postStr), FILE_APPEND);
             if ($postStr)
             {
-                $message = simplexml_load_string($postStr);
-                $xml = new \XMLWriter();
-                $xml->openMemory();
-                $xml->startDocument(null);
-                $xml->startElement(self::FIELD_FROM);
-                $xml->writeCdata($message->ToUserName);
-                $xml->endElement();
-                $xml->startElement(self::FIELD_TO);
-                $xml->writeCdata($message->FromUserName);
-                $xml->endElement();
-                $xml->startElement(self::FIELD_CREATE_TIME);
-                $xml->text(time());
-                $xml->endElement();
-                $xml->startElement(self::FIELD_MSG_TYPE);
-                $xml->text('news');
-                $xml->endElement();
-                $xml->startElement('ArticleCount');
-                $xml->text(1);
-                $xml->endElement();
-                $xml->startElement('Articles');
-                    $xml->startElement('item');
-                        $xml->startElement('Title');
-                        $xml->writeCdata('题目');
-                        $xml->endElement();
-                        $xml->startElement('Description');
-                        $xml->writeCdata('描述文字123！');
-                        $xml->endElement();
-                        $xml->startElement('PicUrl');
-                        $xml->writeCdata('Picture Url Link');
-                        $xml->endElement();
-                        $xml->startElement('Url');
-                        $xml->writeCdata(\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('/account/deposit'));
-                        $xml->endElement();
-                    $xml->endElement();
-                $xml->endElement();
-                $xml->endDocument();
-                $message = $xml->outputMemory(true);
-                $message = preg_replace('/<\?xml.*\?>/', '<xml>', $message);
-                $message = $message.'</xml>';
-                file_put_contents(\Yii::$app->runtimePath.'/logs/wechat.log', $message, FILE_APPEND);
-                exit($message);
+                $this->postXml = simplexml_load_string($postStr);
+                $messageType = $this->postXml->getName(self::FIELD_MSG_TYPE);
+                if (method_exists($this, $messageType)) return $this->$messageType();
             }
         }
     }
 
-    public function actionVerify($signature, $timestamp, $nonce, $echostr=null)
+    private function event()
     {
-            $arr = [\Yii::$app->params['wechat']['token'], $timestamp, $nonce];
-            sort($arr);
-            $str = implode('',$arr);
-            $str = sha1($str);
-            if ($signature == $str) exit($echostr);
+        $eventName = $this->postXml->getName('Event');
+        $eventKey = $this->postXml->getName('EventKey');
+        if (method_exists($this, $eventName)) return $this->$eventName($eventKey);
+        return false;
+    }
+
+    private function subscribe($eventKey = null)
+    {
+        //对订阅用户回复注册绑定的图文内容（news）
+        $xml = $this->xmlWriter();
+        $xml->startElement(self::FIELD_MSG_TYPE);
+        $xml->writeCdata('news');
+        $xml->endElement();
+        $xml->startElement('ArticleCount');
+        $xml->text(1);
+        $xml->endElement();
+        $xml->startElement('Articles');
+        $xml->startElement('item');
+        $xml->startElement('Title');
+        $xml->writeCdata('绑定平台账户，开启财富之旅。');
+        $xml->endElement();
+        $xml->startElement('Description');
+        $xml->writeCdata('易贷发是一家高科技网络金融服务公司，创始团队是来自于金融、法律和互联网行业的资深人士，我们希望通过跨界的合作与知识的共享，通过互联网技术让更多的人享受金融服务，实践普惠金融。');
+        $xml->endElement();
+        $xml->startElement('PicUrl');
+        $xml->writeCdata('http://9huimai.com/public/attachment/201403/06/13/53180bd19c25c.png');
+        $xml->endElement();
+        $xml->startElement('Url');
+        $xml->writeCdata('http://www.9huimai.com');
+        $xml->endElement();
+        $xml->endElement();
+        $xml->endElement();
+        $xml->endDocument();
+        $message = $xml->outputMemory(true);
+        exit($this->messageFormatter($message));
+    }
+
+    private function messageFormatter($xmlStr)
+    {
+        $xmlStr = preg_replace('/<\?xml.*\?>/', '<xml>', $xmlStr);
+        return $xmlStr . '</xml>';
+    }
+
+    private function xmlWriter()
+    {
+        $xmlWriter = new \XMLWriter();
+        $xmlWriter->openMemory();
+        $xmlWriter->startDocument();
+        $xmlWriter->startElement(self::FIELD_FROM);
+        $xmlWriter->writeCdata($this->postXml->getName(self::FIELD_TO));
+        $xmlWriter->endElement();
+        $xmlWriter->startElement(self::FIELD_TO);
+        $xmlWriter->writeCdata($this->postXml->getName(self::FIELD_FROM));
+        $xmlWriter->endElement();
+        $xmlWriter->startElement(self::FIELD_CREATE_TIME);
+        $xmlWriter->text(time());
+        $xmlWriter->endElement();
+        return $xmlWriter;
     }
 
     private function sign()
