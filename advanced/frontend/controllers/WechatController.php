@@ -40,7 +40,7 @@ class WechatController extends Controller
                 $this->postXml = simplexml_load_string($postStr);
                 $messageType = $this->postXml->MsgType;
                 file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $messageType, FILE_APPEND);
-                if (method_exists($this, $messageType)) return $this->$messageType();
+                if ('event' == $messageType) return $this->event();
             }
         }
     }
