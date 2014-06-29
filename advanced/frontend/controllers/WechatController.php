@@ -45,7 +45,7 @@ class WechatController extends Controller
         }
     }
 
-    private function event()
+    public function event()
     {
         file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', 'I am event method!', FILE_APPEND);
         $eventName = $this->postXml->Event;
@@ -53,6 +53,11 @@ class WechatController extends Controller
         file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $eventName.'_'.$eventKey, FILE_APPEND);
         if (method_exists($this, $eventName)) return $this->$eventName($eventKey);
         return false;
+    }
+
+    public function unsubscribe($key = null)
+    {
+        return file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', 'I am unsubscribe method.', FILE_APPEND);
     }
 
     private function subscribe($eventKey = null)
