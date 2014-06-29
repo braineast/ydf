@@ -47,8 +47,8 @@ class WechatController extends Controller
 
     private function event()
     {
-        $eventName = $this->postXml->getName('Event');
-        $eventKey = $this->postXml->getName('EventKey');
+        $eventName = $this->postXml->Event;
+        $eventKey = $this->postXml->EventKey;
         file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $eventName.'_'.$eventKey, FILE_APPEND);
         if (method_exists($this, $eventName)) return $this->$eventName($eventKey);
         return false;
@@ -97,10 +97,10 @@ class WechatController extends Controller
         $xmlWriter->openMemory();
         $xmlWriter->startDocument();
         $xmlWriter->startElement(self::FIELD_FROM);
-        $xmlWriter->writeCdata($this->postXml->getName(self::FIELD_TO));
+        $xmlWriter->writeCdata($this->postXml->ToUserName);
         $xmlWriter->endElement();
         $xmlWriter->startElement(self::FIELD_TO);
-        $xmlWriter->writeCdata($this->postXml->getName(self::FIELD_FROM));
+        $xmlWriter->writeCdata($this->postXml->FromUserName);
         $xmlWriter->endElement();
         $xmlWriter->startElement(self::FIELD_CREATE_TIME);
         $xmlWriter->text(time());
