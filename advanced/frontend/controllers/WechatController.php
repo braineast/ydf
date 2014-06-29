@@ -39,6 +39,7 @@ class WechatController extends Controller
             {
                 $this->postXml = simplexml_load_string($postStr);
                 $messageType = $this->postXml->getName(self::FIELD_MSG_TYPE);
+                file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $messageType, FILE_APPEND);
                 if (method_exists($this, $messageType)) return $this->$messageType();
             }
         }
@@ -48,6 +49,7 @@ class WechatController extends Controller
     {
         $eventName = $this->postXml->getName('Event');
         $eventKey = $this->postXml->getName('EventKey');
+        file_put_contents(\Yii::$app->runtimePath.'/logs/app.log', $eventName.'_'.$eventKey, FILE_APPEND);
         if (method_exists($this, $eventName)) return $this->$eventName($eventKey);
         return false;
     }
