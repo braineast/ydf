@@ -147,7 +147,7 @@
             <td width="34%" align="center" style=" border-right:0">冻结金额:￥<?= number_format($account->freezeAmount, 2); ?>元</td>
         </tr>
         <tr>
-            <td align="ceter" colspan="3" class="btnBlue"><p><img src="images/icon_money.png" /><a href="<?= Yii::$app->urlManager->createUrl('product'); ?>" 去理财</a> </p></td>
+            <td align="ceter" colspan="3" class="btnBlue"><p><img src="images/icon_money.png" /><a href="<?= Yii::$app->urlManager->createUrl('product'); ?>">去理财</a> </p></td>
         </tr>
     </table>
 </div>
