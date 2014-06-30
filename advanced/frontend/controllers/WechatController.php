@@ -9,6 +9,7 @@
 namespace frontend\controllers;
 
 
+use frontend\models\ydf\User;
 use yii\web\Controller;
 
 class WechatController extends Controller
@@ -58,7 +59,46 @@ class WechatController extends Controller
         if ('subscribe' == $eventName) return $this->subscribe();
         if ('unsubscribe' == $eventName) return $this->unsubscribe();
         if ($eventKey == 'account_bind_action') return $this->userBind();
+        if ($eventKey == 'account_summary_action') return $this->getAccountBrief();
         return false;
+    }
+
+    private function getAccountBrief()
+    {
+        if (\Yii::$app->user->isGuest) return $this->userBind();
+        $user = User::find()->where('id=:id', [':id'=>\Yii::$app->user->getId()])->one();
+        if ($user)
+        {
+            $balance = number_format($user->getAttribute('money'), 2);
+            $freezeAmt = number_format($user->getAttribute('lock_money'), 2);
+            $total = $balance + $freezeAmt;
+            $xml = $this->xmlWriter();
+            $xml->startElement(self::FIELD_MSG_TYPE);
+            $xml->writeCdata('news');
+            $xml->endElement();
+            $xml->startElement('ArticleCount');
+            $xml->text(1);
+            $xml->endElement();
+            $xml->startElement('Articles');
+            $xml->startElement('item');
+            $xml->startElement('Title');
+            $xml->writeCdata('账户摘要数据统计');
+            $xml->endElement();
+            $xml->startElement('Description');
+            $xml->writeCdata(sprintf("账户总额：%s\n其中可用金额：%s，冻结金额：%s", $total, $balance, $freezeAmt));
+            $xml->endElement();
+            $xml->startElement('PicUrl');
+            $xml->writeCdata('http://9huimai.com/public/attachment/201403/06/13/53180bd19c25c.png');
+            $xml->endElement();
+            $xml->startElement('Url');
+            $xml->writeCdata(\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('account?wechat='.$this->postXml->FromUserName));
+            $xml->endElement();
+            $xml->endElement();
+            $xml->endElement();
+            $xml->endDocument();
+            $message = $xml->outputMemory(true);
+            exit($this->messageFormatter($message));
+        }
     }
 
     private function userBind()
