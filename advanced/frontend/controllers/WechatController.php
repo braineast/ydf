@@ -65,7 +65,6 @@ class WechatController extends Controller
 
     private function getAccountBrief()
     {
-        if (!\Yii::$app->request->cookies->get('wechat_open_id')) return $this->userBind();
         $user = User::find()->where('id=:id', [':id'=>\Yii::$app->user->getId()])->one();
         if ($user)
         {
