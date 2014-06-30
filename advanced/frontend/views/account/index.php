@@ -147,9 +147,19 @@
             <td width="34%" align="center" style=" border-right:0">冻结金额:￥<?= number_format($account->freezeAmount, 2); ?>元</td>
         </tr>
         <tr>
-            <td align="ceter" colspan="3" class="btnBlue"><p><img src="images/icon_money.png" /><a href="<?= Yii::$app->urlManager->createUrl('product'); ?>">去理财</a> </p></td>
+            <td align="ceter" colspan="3" class="btnBlue"><p id="invest_lnk"><img src="images/icon_money.png" />去理财</p></td>
         </tr>
     </table>
 </div>
 
 <!--main_content eng-->
+<script type="text/javascript">
+    $(document).ready(
+        function()
+        {
+            $('p#invest_lnk').bind('click', function(evt){
+                window.location.href = "<?= Yii::$app->request->hostInfo . Yii::$app->urlManager->createUrl('product');?>";
+            });
+        }
+    );
+</script>
