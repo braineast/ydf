@@ -38,13 +38,13 @@
         function()
         {
             $('button[name="bind"]').bind('click', function(event) {
+                event.preventDefault();
                 $.post(loginUrl,{username:$('input[name="username"]').val(), password:$('input[name="password"]').val()},
                 function(data)
                 {
                     alert(data);
                 }
                 );
-                event.preventDefault();
             });
             $('input').bind('click', function() {
                 $(this).removeAttr('placeholder');

@@ -21,7 +21,6 @@ class UserController extends Controller
     {
         if ($_POST && isset($_POST['username']) && isset($_POST['password']))
         {
-            $ajax = isset($_POST['ajax']) && $_POST['ajax'] ? true : false;
             $user = User::find()->where('user_name=:username or email=:username', [':username'=>$_POST['username']])->one();
             if ($user && \Yii::$app->user->login($user, 3600 * 24 * 30))
             {
@@ -37,6 +36,10 @@ class UserController extends Controller
                     \Yii::$app->response->cookies->add($cookie);
                 }
                 $this->redirect(\Yii::$app->urlManager->createUrl('account'));
+            }
+            else
+            {
+                if (\Yii::$app->request->isAjax) exit('抱歉，登录失败，请输入正确的账号密码再次重试，谢谢！');
             }
         }
         return $this->render('login');
