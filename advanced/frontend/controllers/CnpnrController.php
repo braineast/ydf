@@ -63,6 +63,7 @@ class CnpnrController extends Controller
                     }
                 }
             }
+            $this->redirect('account');
         }
         return false;
     }
