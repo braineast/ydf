@@ -27,8 +27,6 @@ class WechatController extends Controller
 
     public function actionTest()
     {
-        var_dump($this->deleteMenu());
-        var_dump($this->createMenu());
     }
 
     public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
@@ -61,6 +59,16 @@ class WechatController extends Controller
         if ('unsubscribe' == $eventName) return $this->unsubscribe();
         if ($eventKey == 'account_bind_action') return $this->userBind();
         if ($eventKey == 'account_summary_action') return $this->getAccountBrief();
+        $xml = $this->xmlWriter();
+        $xml->startElement(static::FIELD_MSG_TYPE);
+        $xml->writeCdata('text');
+        $xml->endElement();
+        $xml->startElement(static::FIELD_CONTENT);
+        $xml->writeCdata('一路精彩，皆因一路有你相伴，感谢您对易贷发持续的有力支持，我们会更加努力，更多精彩，值得期待！');
+        $xml->endElement();
+        $xml->endDocument();
+        $message = $xml->outputMemory(true);
+        exit($this->messageFormatter($message));
         return false;
     }
 
