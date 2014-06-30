@@ -111,8 +111,6 @@ class WechatController extends Controller
 
     private function userBind()
     {
-        $user = User::find()->where('wechat_open_id=:openid', [':openid'=>$this->postXml->FromUserName])->one();
-        if ($user) return $this->getAccountBrief();
         $xml = $this->xmlWriter();
         $xml->startElement(self::FIELD_MSG_TYPE);
         $xml->writeCdata('news');
