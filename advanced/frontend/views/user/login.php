@@ -38,7 +38,7 @@
         function()
         {
             $('button[name="bind"]').bind('click', function(event) {
-                $.post(loginUrl,{ajax:'1', username:$('input[name="username"]').val(), password:$('input[name="password"]').val()},
+                $.post(loginUrl,{username:$('input[name="username"]').val(), password:$('input[name="password"]').val()},
                 function(data)
                 {
                     alert(data);
