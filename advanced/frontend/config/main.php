@@ -32,6 +32,13 @@ return [
             'enablePrettyUrl'=>true,
             'showScriptName'=>false,
         ],
+        'db' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:dbname=mobile;host=127.0.0.1',
+            'username' =>'mobile',
+            'password' => 'sql_1qaz2wsx',
+            'charset' => 'utf8'
+        ],
         'ydf_db' => [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:dbname=xindai;host=127.0.0.1',
