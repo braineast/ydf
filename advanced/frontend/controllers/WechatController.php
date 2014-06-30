@@ -27,6 +27,7 @@ class WechatController extends Controller
 
     public function actionTest()
     {
+        var_dump($this->deleteMenu());
         var_dump($this->createMenu());
     }
 
@@ -297,7 +298,36 @@ class WechatController extends Controller
             ]
         ];
 
-        $menu = '{"button":[{"name":"账户","sub_button":[{"name":"注册/绑定","type":"click","key":"account_bind_action"},{"name":"交易明细","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/account"},{"name":"账户余额","type":"click","key":"account_summary_action"},{"name":"充值","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/account\/deposit"}]},{"name":"理财","sub_button":[{"name":"去理财","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/product"},{"name":"安全保障","type":"click","key":"info_get_guarantee_action"},{"name":"持有产品","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/account\/invests"}]},{"name":"服务","sub_button":[{"name":"关于易贷发","type":"click","key":"info_get_aboutus_action"},{"name":"新手指导","type":"click","key":"info_get_newbie_guide_action"},{"name":"理财咨询","type":"click","key":"info_get_question_action"},{"name":"投诉建议","type":"click","key":"suggest_action"}]}]}';
+        $menu = '{
+                    "button":[
+                                {
+                                    "name":"账户",
+                                    "sub_button":[
+                                        {"name":"注册/绑定","type":"click","key":"account_bind_action"},
+                                        {"name":"交易明细","type":"view","url":"http:\/\/m.9huimai.com\/account"},
+                                        {"name":"账户余额","type":"click","key":"account_summary_action"},
+                                        {"name":"充值","type":"view","url":"http:\/\/m.9huimai.com\/account\/deposit"}
+                                    ]
+                                },
+                                {
+                                    "name":"理财",
+                                    "sub_button":[
+                                        {"name":"去理财","type":"view","url":"http:\/\/m.9huimai.com\/product"},
+                                        {"name":"安全保障","type":"click","key":"info_get_guarantee_action"},
+                                        {"name":"持有产品","type":"view","url":"http:\/\/m.9huimai.com\/account\/invests"}
+                                    ]
+                                },
+                                {
+                                    "name":"服务",
+                                    "sub_button":[
+                                        {"name":"关于易贷发","type":"click","key":"info_get_aboutus_action"},
+                                        {"name":"新手指导","type":"click","key":"info_get_newbie_guide_action"},
+                                        {"name":"理财咨询","type":"click","key":"info_get_question_action"},
+                                        {"name":"投诉建议","type":"click","key":"suggest_action"}
+                                    ]
+                                }
+                    ]
+                }';
         $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token='.$this->getAccessToken();
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
