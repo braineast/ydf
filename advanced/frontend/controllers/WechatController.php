@@ -65,7 +65,7 @@ class WechatController extends Controller
 
     private function getAccountBrief()
     {
-        $user = User::find()->where('id=:id', [':id'=>\Yii::$app->user->getId()])->one();
+        $user = User::find()->where('wechat_open_id=:openid', [':openid'=>$this->postXml[static::FIELD_FROM]])->one();
         if ($user)
         {
             $balance = number_format($user->getAttribute('money'), 2);
