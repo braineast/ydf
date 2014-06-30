@@ -42,13 +42,12 @@ class AccountController extends Controller
     {
         if (isset($_POST) && $_POST)
         {
-            $ajax = isset($_POST['ajax']) && $_POST['ajax'] ? true : false;
             $amount = isset($_POST['amount']) && $_POST['amount'] > 0 ? $_POST['amount'] : null;
             if ($amount)
             {
-                if ($order = Order::create(151,$amount,Order::TYPE_ACCOUNT_DEPOSIT))
+                if ($order = Order::create(\Yii::$app->user->getId(),$amount,Order::TYPE_ACCOUNT_DEPOSIT))
                 {
-                    $orderPayment = OrderPayment::create($order, 100.00);
+                    $orderPayment = OrderPayment::create($order, $amount);
                     if ($orderPayment)
                     {
                         $ydfUser = YDFUser::find()->select(['id', 'user_name', 'is_hf_open'])->where('id=:id', [':id'=>$orderPayment->userId])->one();
@@ -61,7 +60,7 @@ class AccountController extends Controller
                             $cnpnr->ordDate = date('Ymd', $orderPayment->paymentAt);
                             $cnpnr->merPriv = json_encode(['id'=>$ydfUser->getAttribute('id'),'username'=>$ydfUser->getAttribute('user_name'),'cnpnr_acct'=>$ydfUser->getAttribute('is_hf_open')]);
                             $redirectUrl = $cnpnr->getLink();
-                            if ($ajax) exit($redirectUrl);
+                            if (\Yii::$app->request->isAjax) exit($redirectUrl);
                             exit("<a href=\"".$redirectUrl."\">现在支付</a>");
                         }
                     }

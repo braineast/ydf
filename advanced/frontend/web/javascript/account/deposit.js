@@ -43,7 +43,7 @@ $(document).ready(
                         return false;
                     }
                     $.post(depositSubmitUrl,
-                        {ajax:"1", amount:$('input.inputMoney').val()},
+                        {amount:$('input.inputMoney').val()},
                         function(data)
                         {
                             window.location.href = data;
