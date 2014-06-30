@@ -65,7 +65,7 @@ class CnpnrController extends Controller
                             $user->setAttribute('money', $user->getAttribute('money') + $this->response[ChinaPNR::PARAM_TRANSAMT]);
                             $user->save();
                         }
-                        if ($order->status == Order::STATUS_PAID) return true;
+//                        if ($order->status == Order::STATUS_PAID) return true;
                     }
                 }
             }
