@@ -13,6 +13,7 @@ use frontend\models\api\ChinaPNR;
 use frontend\models\Order;
 use frontend\models\OrderPayment;
 use frontend\models\ydf\PaymentNotice;
+use frontend\models\ydf\User;
 use yii\web\Controller;
 
 class CnpnrController extends Controller
@@ -58,7 +59,12 @@ class CnpnrController extends Controller
                     if ($order && $order->status == Order::STATUS_UNPAID)
                     {
                         $order->paid_amount += $this->response[ChinaPNR::PARAM_TRANSAMT];
-                        $order->save();
+                        if ($order->save())
+                        {
+                            $user = User::find()->where('id=:id', [':id'=>$this->response[ChinaPNR::PARAM_MERPRIV]['id']])->one();
+                            $user->setAttribute('money', $user->getAttribute('money') + $this->response[ChinaPNR::PARAM_TRANSAMT]);
+                            $user->save();
+                        }
                         if ($order->status == Order::STATUS_PAID) return true;
                     }
                 }

@@ -22,8 +22,4 @@ class User extends ActiveRecord{
     {
         return \Yii::$app->get('ydf_db');
     }
-
-    public function beforeSave()
-    {
-    }
-} 
+}

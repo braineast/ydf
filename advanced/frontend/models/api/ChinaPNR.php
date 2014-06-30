@@ -142,7 +142,7 @@ class ChinaPNR {
                     }
                     Log::cnpnr($this->response);
                 }
-                else exit(验签失败);
+                else exit('验签失败');
             }
         }
         return $this;
