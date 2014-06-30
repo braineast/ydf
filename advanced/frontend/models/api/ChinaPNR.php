@@ -209,7 +209,7 @@ class ChinaPNR {
     private function _sign($msg)
     {
         $sign = null;
-        $fp = fsockopen("192.168.238.130", 8733, $errno, $errstr, 10);
+        $fp = fsockopen("115.28.152.140", 8866, $errno, $errstr, 10);
         if ($fp)
         {
             $len = sprintf("%04s", strlen($msg));
@@ -229,7 +229,7 @@ class ChinaPNR {
         $len = sprintf("%04s", strlen($messageBody));
         $out = 'V'.$this->merId.$len.$messageBody.$chkValue;
         $out = sprintf("%04s", strlen($out)).$out;
-        $fp = fsockopen("192.168.238.130", 8733, $errno, $errstr, 10);
+        $fp = fsockopen("115.28.152.140", 8866, $errno, $errstr, 10);
         if ($fp)
         {
             fputs($fp, $out);
