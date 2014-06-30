@@ -57,7 +57,39 @@ class WechatController extends Controller
         $eventKey = $this->postXml->EventKey;
         if ('subscribe' == $eventName) return $this->subscribe();
         if ('unsubscribe' == $eventName) return $this->unsubscribe();
+        if ($eventKey == 'account_bind_action') return $this->userBind();
         return false;
+    }
+
+    private function userBind()
+    {
+        //对订阅用户回复注册绑定的图文内容（news）
+        $xml = $this->xmlWriter();
+        $xml->startElement(self::FIELD_MSG_TYPE);
+        $xml->writeCdata('news');
+        $xml->endElement();
+        $xml->startElement('ArticleCount');
+        $xml->text(1);
+        $xml->endElement();
+        $xml->startElement('Articles');
+        $xml->startElement('item');
+        $xml->startElement('Title');
+        $xml->writeCdata('绑定平台账户，开启财富人生。');
+        $xml->endElement();
+        $xml->startElement('Description');
+        $xml->writeCdata('易贷发是一家高科技网络金融服务公司，创始团队是来自于金融、法律和互联网行业的资深人士，我们希望通过跨界的合作与知识的共享，通过互联网技术让更多的人享受金融服务，实践普惠金融。');
+        $xml->endElement();
+        $xml->startElement('PicUrl');
+        $xml->writeCdata('http://9huimai.com/public/attachment/201403/06/13/53180bd19c25c.png');
+        $xml->endElement();
+        $xml->startElement('Url');
+        $xml->writeCdata(\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('user/login?wechat='.$this->postXml->FromUserName));
+        $xml->endElement();
+        $xml->endElement();
+        $xml->endElement();
+        $xml->endDocument();
+        $message = $xml->outputMemory(true);
+        exit($this->messageFormatter($message));
     }
 
     public function unsubscribe()
@@ -87,7 +119,7 @@ class WechatController extends Controller
         $xml->writeCdata('http://9huimai.com/public/attachment/201403/06/13/53180bd19c25c.png');
         $xml->endElement();
         $xml->startElement('Url');
-        $xml->writeCdata('http://www.9huimai.com');
+        $xml->writeCdata(\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('user/login?wechat='.$this->postXml->FromUserName));
         $xml->endElement();
         $xml->endElement();
         $xml->endElement();
@@ -150,23 +182,100 @@ class WechatController extends Controller
 
     private function createMenu()
     {
-        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token='.$this->getAccessToken();
         $menu = [
             'button'=>[
                 [
-                    'type'=>'click',
-                    'name'=>'dev',
-                    'key'=>'vt1001_account',
+                    'name'=>'账户',
+                    'sub_button' => [
+                        [
+                            'name'=>'注册/绑定',
+                            'type'=>'click',
+                            'key'=>'account_bind_action',
+                        ],
+                        [
+                            'name'=>'交易明细',
+                            'type'=>'view',
+                            'url'=>\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('account')
+                        ],
+                        [
+                            'name'=>'账户余额',
+                            'type'=>'click',
+                            'key'=>'account_summary_action',
+                        ],
+                        [
+                            'name'=>'充值',
+                            'type'=>'view',
+                            'url'=>\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('account/deposit'),
+                        ],
+                    ]
                 ],
-            ],
+                [
+                    'name'=>'理财',
+                    'sub_button'=> [
+                        [
+                            'name'=>'去理财',
+                            'type'=>'view',
+                            'url'=>\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('product'),
+                        ],
+                        [
+                            'name'=>'安全保障',
+                            'type'=>'click',
+                            'key'=>'info_get_guarantee_action'
+                        ],
+                        [
+                            'name'=>'持有产品',
+                            'type'=>'view',
+                            'url'=>\Yii::$app->request->hostInfo.\Yii::$app->urlManager->createUrl('account/invests'),
+                        ],
+                    ]
+                ],
+                [
+                    'name'=>'服务',
+                    'sub_button'=> [
+                        [
+                            'name'=>'关于易贷发',
+                            'type'=>'click',
+                            'key'=>'info_get_aboutus_action'
+                        ],
+                        [
+                            'name'=>'新手指导',
+                            'type'=>'click',
+                            'key'=>'info_get_newbie_guide_action'
+                        ],
+                        [
+                            'name'=>'理财咨询',
+                            'type'=>'click',
+                            'key'=>'info_get_question_action'
+                        ],
+                        [
+                            'name'=>'投诉建议',
+                            'type'=>'click',
+                            'key'=>'suggest_action'
+                        ]
+                    ]
+                ]
+            ]
         ];
+
+        $menu = '{"button":[{"name":"账户","sub_button":[{"name":"注册/绑定","type":"click","key":"account_bind_action"},{"name":"交易明细","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/account"},{"name":"账户余额","type":"click","key":"account_summary_action"},{"name":"充值","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/account\/deposit"}]},{"name":"理财","sub_button":[{"name":"去理财","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/product"},{"name":"安全保障","type":"click","key":"info_get_guarantee_action"},{"name":"持有产品","type":"view","url":"http:\/\/wx.ltxigu.com:8733\/account\/invests"}]},{"name":"服务","sub_button":[{"name":"关于易贷发","type":"click","key":"info_get_aboutus_action"},{"name":"新手指导","type":"click","key":"info_get_newbie_guide_action"},{"name":"理财咨询","type":"click","key":"info_get_question_action"},{"name":"投诉建议","type":"click","key":"suggest_action"}]}]}';
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token='.$this->getAccessToken();
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($menu));
+        curl_setopt($ch, CURLOPT_POSTFIELDS,$menu);
         $htmlMessage = curl_exec($ch);
         curl_close($ch);
+        var_dump(json_decode($htmlMessage, true));
         var_dump($htmlMessage);
         return json_decode($htmlMessage, true);
+    }
+
+    private function deleteMenu()
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=' . $this->getAccessToken();
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $ret = curl_exec($ch);
+        return json_decode($ret, true);
     }
 }
