@@ -19,7 +19,8 @@ $company = isset(Yii::$app->params['company']) ? Yii::$app->params['company'] : 
 <html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
+    <meta name="viewport" content="width=device-width,maximum-scale=0.5,target-densitydpi=300, user-scalable=no;"  />
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
