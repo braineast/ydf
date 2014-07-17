@@ -26,7 +26,7 @@ class ProductController extends Controller
 
     public function actionIndex()
     {
-        return $this->actionDeals();
+        return $this->actionList();
     }
 
     public function actionList()
