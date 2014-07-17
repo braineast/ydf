@@ -26,7 +26,7 @@ class ProductController extends Controller
 
     public function actionIndex()
     {
-        return $this->actionList();
+        return $this->actionDeals();
     }
 
     public function actionList()
@@ -43,6 +43,11 @@ class ProductController extends Controller
                 return $this->render('view', ['deal'=>$deal]);
         }
         return $this->redirect(Yii::$app->urlManager->createUrl('product'), 302);
+    }
+
+    public function actionDeals()
+    {
+        return $this->render('deals');
     }
 
 }
