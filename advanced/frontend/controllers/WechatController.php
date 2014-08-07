@@ -27,6 +27,7 @@ class WechatController extends Controller
 
     public function actionTest()
     {
+        var_dump($this->getUserBaseInfo());
     }
 
     public function actionIndex($signature, $timestamp, $nonce, $echostr=null)
@@ -48,6 +49,16 @@ class WechatController extends Controller
                 if ('event' == $messageType) return $this->event();
             }
         }
+    }
+
+    private function getUserBaseInfo()
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token='.$this->getAccessToken().'&openid=o3F9VtwwatpndlTUt2GE0BtGUNRY&lang=zh_CN';
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $ret = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($ret, true);
     }
 
     public function event()
